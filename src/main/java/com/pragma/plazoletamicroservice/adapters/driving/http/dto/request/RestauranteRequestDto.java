@@ -22,7 +22,7 @@ public class RestauranteRequestDto {
     @NotBlank
     private String direccion;
     @NotBlank
-    @Pattern(regexp = "^(\\+\\d{1,3})?((\\d{1,3})|\\d{1,3})\\d{3,4}\\d{4}$")
+    @Pattern(regexp = "^(\\+\\d{1,3})?((\\d{1,3})|\\d{1,3})\\d{3,4}\\d{4}$", message = "El numero de telefono debe tener entre 6 y 13 carecteres numerico o un '+' al inicio")
     @Size(min = 6, max = 13)
     private String telefono;
     @NotBlank

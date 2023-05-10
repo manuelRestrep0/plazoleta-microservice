@@ -1,6 +1,5 @@
 package com.pragma.plazoletamicroservice.adapters.driving.http.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -13,19 +12,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class PlatoRequestDto {
-    @NotBlank
-    private String nombre;
+public class ModificarPlatoRequestDto {
+
     @NotNull
-    private Long idCategoria;
-    @NotBlank
-    private String descripcion;
-    @NotBlank
+    private Long id;
     @Positive
     @Pattern(regexp = "^[0-9]+$", message = "El precio solo debe contener numeros")
     private String precio;
-    @NotNull
-    private Long idRestaurante;
-    @NotBlank
-    private String urlImagen;
+    private String descripcion;
 }
