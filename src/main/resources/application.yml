@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost/plazoleta
+    username: root
+    password: 123456789
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+external:
+  usuariomicroservice:
+    base-url: http://localhost:8080/usuario
+
+server:
+  port: 8090
