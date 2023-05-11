@@ -6,7 +6,6 @@ import com.pragma.plazoletamicroservice.domain.api.IRestauranteServicePort;
 import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoPropietarioException;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
-import com.pragma.plazoletamicroservice.domain.usecase.validaciones.ValidacionesRestaurante;
 
 public class RestauranteUseCase implements IRestauranteServicePort {
     private final IRestaurantePersistencePort restaurantePersistencePort;
@@ -19,8 +18,6 @@ public class RestauranteUseCase implements IRestauranteServicePort {
 
     @Override
     public void crearRestaurante(Restaurante restaurante) {
-        ValidacionesRestaurante validacionesRestaurante = new ValidacionesRestaurante();
-        validacionesRestaurante.validarNombre(restaurante.getNombre());
         if(Boolean.FALSE.equals(feignClient.validarPropietario(restaurante.getIdPropietario()))){
             throw new UsuarioNoPropietarioException(Constants.USUARIO_NO_PROPIETARIO);
         }

@@ -41,11 +41,10 @@ public class RestauranteServiceTest {
     @DisplayName("Cuando el telefono no tiene el formato correcto, se detecta" +
             "que no pasa las validaciones y se verifica que el campo que no paso " +
             "la validacion sea el de telefono")
-    @ValueSource(strings = {"302","+57","3333333333333333333","-2","abc","3.2","302a","3024261812+","302+4261812"})
+    @ValueSource(strings = {"","302","+57","3333333333333333333","-2","abc","3.2","302a","3024261812+","302+4261812"})
     void crearRestauranteTelefonoMalFormato(String telefono){
         restauranteRequestDto.setTelefono(telefono);
         Set<ConstraintViolation<RestauranteRequestDto>> violations = validator.validate(restauranteRequestDto);
-
         assertEquals(true, !violations.isEmpty());
         for (ConstraintViolation<RestauranteRequestDto> violation: violations
         ) {
@@ -70,4 +69,21 @@ public class RestauranteServiceTest {
             assertEquals("nit",violation.getPropertyPath().toString());
         }
     }
+    @ParameterizedTest(name = "Valor: {0} ")
+    @DisplayName("Cuando se ingresa un nombre de solo numeros, no pasa las validaciones" +
+            "y se verifica que el campo que no paso sea el del nombre del restaurante")
+    @ValueSource(strings = {"12","-2","1.2","09+09","0"})
+    void crearRestauranteMalNombre(String nombre){
+        restauranteRequestDto.setNombre(nombre);
+        Set<ConstraintViolation<RestauranteRequestDto>> violations = validator.validate(restauranteRequestDto);
+
+        assertEquals(true, !violations.isEmpty());
+        for (ConstraintViolation<RestauranteRequestDto> violation: violations
+        ) {
+            violation = violations.iterator().next();
+            assertEquals("nombre",violation.getPropertyPath().toString());
+        }
+    }
+
+
 }
