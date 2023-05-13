@@ -2,8 +2,10 @@ package com.pragma.plazoletamicroservice.configuration;
 
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.PlatoMysqlAdapter;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.RestauranteMysqlAdapter;
+import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.ICategoriaEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPlatoEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IRestauranteEntityMapper;
+import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.ICategoriaRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPlatoRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IRestauranteRepository;
 import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFeignClient;
@@ -25,6 +27,8 @@ public class BeanConfiguration {
     private final IRestauranteEntityMapper restauranteEntityMapper;
     private final IPlatoRepository platoRepository;
     private final IPlatoEntityMapper platoEntityMapper;
+    private final ICategoriaRepository categoriaRepository;
+    private final ICategoriaEntityMapper categoriaEntityMapper;
     private final UsuarioFeignClient usuarioFeignClient;
 
     @Bean
@@ -38,7 +42,7 @@ public class BeanConfiguration {
     }
     @Bean
     public IPlatoServicePort platoServicePort(){
-        return new PlatoUseCase(platoPersistencePort(),restauranteRepository,restauranteEntityMapper);
+        return new PlatoUseCase(platoPersistencePort(),platoRepository,platoEntityMapper,restauranteRepository,restauranteEntityMapper,categoriaRepository,categoriaEntityMapper);
     }
     @Bean
     public IPlatoPersistencePort platoPersistencePort(){

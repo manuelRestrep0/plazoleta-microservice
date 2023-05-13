@@ -11,6 +11,11 @@ public class Constants {
     public static final String NIT_YA_REGISTRADO = "El nit de este restaurante ya se encuentra registrado.";
     public static final String USUARIO_NO_PROPIETARIO = "El id del usuario no corresponde a un propietario.";
     public static final String RESTAURANTE_NO_ENCONTRADO = "El restaurante no se encuentra registrado.";
+    public static final String PLATO_MODIFICADO = "El plato ha sido modificado";
+    public static final String PLATO_CREADO = "El plato ha sido creado.";
+    public static final String PLATO_NO_REGISTRADO = "El plato que intenta modificar no se encuentra registrado";
+    public static final String CATEGORIA_NO_ENCONTRADA = "La categoria no se encuentra registrada.";
+    public static final String PROPIETARIO_DIFERENTE = "El id del propietario no corresponde al id del propietario de este restaurante";
     public static final String SWAGGER_TITLE_MESSAGE = "User API Pragma Power Up";
     public static final String SWAGGER_DESCRIPTION_MESSAGE = "User microservice";
     public static final String SWAGGER_VERSION_MESSAGE = "1.0.0";

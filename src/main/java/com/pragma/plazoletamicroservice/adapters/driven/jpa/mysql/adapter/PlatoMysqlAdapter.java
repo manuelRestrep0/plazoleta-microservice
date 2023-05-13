@@ -13,7 +13,11 @@ public class PlatoMysqlAdapter implements IPlatoPersistencePort {
 
     @Override
     public void crearPlato(Plato plato) {
+        platoRepository.save(platoEntityMapper.toEntity(plato));
+    }
 
+    @Override
+    public void modificarPlato(Plato plato) {
         platoRepository.save(platoEntityMapper.toEntity(plato));
     }
 }
