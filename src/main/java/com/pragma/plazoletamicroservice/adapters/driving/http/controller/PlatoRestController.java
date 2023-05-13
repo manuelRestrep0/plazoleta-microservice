@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,7 +53,7 @@ public class PlatoRestController {
                     @ApiResponse(responseCode = "400", description = "Mala solicitud de modificacion, por favor verifique los datos",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
             })
-    @PutMapping("/modificar-plato")
+    @PatchMapping ("/modificar-plato")
     public ResponseEntity<Map<String,String>> modificarPlato(@Valid @RequestBody ModificarPlatoRequestDto modificarPlatoRequestDto){
         platoHandler.modificarPlato(modificarPlatoRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(

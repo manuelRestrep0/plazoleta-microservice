@@ -11,7 +11,9 @@ import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPl
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IRestauranteRepository;
 import com.pragma.plazoletamicroservice.configuration.Constants;
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
+import com.pragma.plazoletamicroservice.domain.exceptions.CategoriaNoEncontradaException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PlatoNoEncontradoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
 import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.model.Plato;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
@@ -43,23 +45,28 @@ public class PlatoUseCase implements IPlatoServicePort {
 
         Optional<RestauranteEntity> restaurante = restauranteRepository.findById(plato.getIdRestauranteAux());
         if (restaurante.isPresent()){
-            plato.setIdRestaurante(restauranteEntityMapper.toRestaurante(restaurante.get()));
+            if(plato.getIdPropietario().equals(restaurante.get().getIdPropietario())){
+                plato.setIdRestaurante(restauranteEntityMapper.toRestaurante(restaurante.get()));
+            } else{
+                throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);
+            }
         } else {
             throw new RestauranteNoEncontradoException(Constants.RESTAURANTE_NO_ENCONTRADO);
         }
 
         Optional<CategoriaEntity> categoria = categoriaRepository.findById(plato.getIdCategoriaAux());
-
         if(categoria.isPresent()){
             plato.setIdCategoria(categoriaEntityMapper.toCategoria(categoria.get()));
         } else{
-            throw new PlatoNoEncontradoException(Constants.CATEGORIA_NO_ENCONTRADA);
+            throw new CategoriaNoEncontradaException(Constants.CATEGORIA_NO_ENCONTRADA);
         }
+
         this.platoPersistencePort.crearPlato(plato);
 
     }
     @Override
     public void modificarPlato(Long id,String precio, String descripcion) {
+
         Optional<PlatoEntity> plato = platoRepository.findById(id);
         if(plato.isEmpty()){
             throw new PlatoNoEncontradoException(Constants.PLATO_NO_REGISTRADO);

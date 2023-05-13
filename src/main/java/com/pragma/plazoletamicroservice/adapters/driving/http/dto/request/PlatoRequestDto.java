@@ -26,6 +26,8 @@ public class PlatoRequestDto {
     private String precio;
     @NotNull
     private Long idRestaurante;
+    @NotNull
+    private Long idPropietario;
     @NotBlank
     private String urlImagen;
 }

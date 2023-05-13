@@ -1,4 +1,4 @@
-package com.pragma.plazoletamicroservice;
+package com.pragma.plazoletamicroservice.adapter.plato;
 
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PlatoRequestDto;
 import jakarta.validation.ConstraintViolation;
@@ -10,22 +10,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PlatoServiceTest {
 
-    PlatoRequestDto platoRequestDto;
+@ContextConfiguration(classes = PlatoRequestDto.class)
+@SpringBootTest
+public class PlatoRequestDtoTest {
     static Validator validator;
-
+    PlatoRequestDto platoRequestDto;
     @BeforeAll
     public static void setUp(){
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
-
     @BeforeEach
     public void setUpPlatoRequestDto(){
         platoRequestDto = new PlatoRequestDto(
@@ -38,7 +40,6 @@ public class PlatoServiceTest {
                 "https://twitter.com/home"
         );
     }
-
     @ParameterizedTest(name = "Valor: {0} ")
     @DisplayName("Cuando el precio contiene letras o no es un numero positivo diferente de cero, " +
             "no pasa las validaciones y se verifica que el campo que no paso " +
@@ -55,5 +56,4 @@ public class PlatoServiceTest {
             assertEquals("precio",violation.getPropertyPath().toString());
         }
     }
-
 }
