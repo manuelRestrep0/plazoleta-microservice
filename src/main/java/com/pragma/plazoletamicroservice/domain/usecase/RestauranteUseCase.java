@@ -1,26 +1,27 @@
 package com.pragma.plazoletamicroservice.domain.usecase;
 
-import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFeignClient;
 import com.pragma.plazoletamicroservice.configuration.Constants;
 import com.pragma.plazoletamicroservice.domain.api.IRestauranteServicePort;
 import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoPropietarioException;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
+import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
 
 public class RestauranteUseCase implements IRestauranteServicePort {
     private final IRestaurantePersistencePort restaurantePersistencePort;
-    private final UsuarioFeignClient feignClient;
+    private final IFeignServicePort feignServicePort;
 
-    public RestauranteUseCase(IRestaurantePersistencePort restaurantePersistencePort, UsuarioFeignClient feignClient) {
+    public RestauranteUseCase(IRestaurantePersistencePort restaurantePersistencePort, IFeignServicePort feignServicePort) {
         this.restaurantePersistencePort = restaurantePersistencePort;
-        this.feignClient = feignClient;
+        this.feignServicePort = feignServicePort;
     }
-
     @Override
     public void crearRestaurante(Restaurante restaurante) {
-        if(Boolean.FALSE.equals(feignClient.validarPropietario(restaurante.getIdPropietario()))){
+        Long idPropietario = Long.parseLong(feignServicePort.obtenerIdPropietarioFromToken(Token.getToken()));
+        if(!feignServicePort.validarPropietario(idPropietario)){
             throw new UsuarioNoPropietarioException(Constants.USUARIO_NO_PROPIETARIO);
         }
+        restaurante.setIdPropietario(idPropietario);
         this.restaurantePersistencePort.crearRestaurante(restaurante);
     }
 }
