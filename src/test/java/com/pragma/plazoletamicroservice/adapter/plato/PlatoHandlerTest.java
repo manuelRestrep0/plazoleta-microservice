@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = PlatoHandlerImpl.class)
 @SpringBootTest
-public class PlatoHandlerTest {
+class PlatoHandlerTest {
     @MockBean
     IPlatoServicePort platoServicePort;
     @MockBean
@@ -39,7 +39,6 @@ public class PlatoHandlerTest {
                 "Descripcion del plato",
                 "40000",
                 4L,
-                1L,
                 "https://twitter.com/home"
         );
     }

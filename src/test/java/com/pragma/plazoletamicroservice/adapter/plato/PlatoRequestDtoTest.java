@@ -36,7 +36,6 @@ public class PlatoRequestDtoTest {
                 "Descripcion del plato",
                 "40000",
                 4L,
-                1L,
                 "https://twitter.com/home"
         );
     }

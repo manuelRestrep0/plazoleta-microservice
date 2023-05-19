@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = RestauranteHandlerImpl.class)
 @SpringBootTest
-public class RestauranteHandlerTest {
+class RestauranteHandlerTest {
     @MockBean
     IRestauranteServicePort restauranteServicePort;
     @MockBean

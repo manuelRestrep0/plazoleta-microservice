@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ContextConfiguration(classes = RestauranteRequestDto.class)
 @SpringBootTest
-public class RestauranteRequestDtoTest {
+class RestauranteRequestDtoTest {
     static Validator validator;
     RestauranteRequestDto restauranteRequestDto;
 

@@ -8,13 +8,17 @@ import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IRestau
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.ICategoriaRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPlatoRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IRestauranteRepository;
+import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
 import com.pragma.plazoletamicroservice.domain.exceptions.CategoriaNoEncontradaException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
 import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoAutorizadoException;
 import com.pragma.plazoletamicroservice.domain.model.Categoria;
 import com.pragma.plazoletamicroservice.domain.model.Plato;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
+import com.pragma.plazoletamicroservice.domain.spi.ICategoriaPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
+import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
 import com.pragma.plazoletamicroservice.domain.usecase.PlatoUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +28,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -37,17 +40,11 @@ class PlatoUseCaseTest {
     @MockBean
     IPlatoPersistencePort platoPersistencePort;
     @MockBean
-    IPlatoRepository platoRepository;
+    IRestaurantePersistencePort restaurantePersistencePort;
     @MockBean
-    IPlatoEntityMapper platoEntityMapper;
+    ICategoriaPersistencePort categoriaPersistencePort;
     @MockBean
-    IRestauranteRepository restauranteRepository;
-    @MockBean
-    IRestauranteEntityMapper restauranteEntityMapper;
-    @MockBean
-    ICategoriaRepository categoriaRepository;
-    @MockBean
-    ICategoriaEntityMapper categoriaEntityMapper;
+    IFeignServicePort feignServicePort;
     @InjectMocks
     @Autowired
     PlatoUseCase platoUseCase;
@@ -58,53 +55,118 @@ class PlatoUseCaseTest {
         plato = new Plato(
                 1L,
                 "Pollo frito",
-                new Categoria(),
+                new Categoria(
+                        2L,
+                        "Nombre categoria",
+                        "description"
+                ),
                 2L,
                 "pollo frito con especias",
                 "20000",
-                new Restaurante(),
+                new Restaurante(
+                        3L,
+                        "nombre",
+                        "123",
+                        "local",
+                        "3024261812",
+                        "url",
+                        2L
+                ),
                 3L,
                 "urlImagen",
                 true
         );
     }
     @Test
-    void crearPlatoRestauranteNoExiste(){
-        when(restauranteRepository.findById(any())).thenReturn(Optional.empty());
-
-        assertThrows(RestauranteNoEncontradoException.class, () -> platoUseCase.crearPlato(plato));
-    }
-    @Test
-    void crearPlatoRestauranteExistePropietarioNoCoincide(){
-        RestauranteEntity restauranteEntity = new RestauranteEntity();
-        restauranteEntity.setIdPropietario(20L);
-        when(restauranteRepository.findById(any())).thenReturn(Optional.of(restauranteEntity));
-
-        assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.crearPlato(plato));
-    }
-    @Test
-    void crearPlatoCategoriaNoExiste(){
-        RestauranteEntity restauranteEntity = new RestauranteEntity();
-        restauranteEntity.setIdPropietario(4L);
-        when(restauranteRepository.findById(any())).thenReturn(Optional.of(restauranteEntity));
-        when(restauranteEntityMapper.toRestaurante(any())).thenReturn(new Restaurante());
-        when(categoriaRepository.findById(any())).thenReturn(Optional.empty());
-
-        assertThrows(CategoriaNoEncontradaException.class, () -> platoUseCase.crearPlato(plato));
-    }
-    @Test
-    void crearPlatoCorrectamente(){
-        RestauranteEntity restauranteEntity = new RestauranteEntity();
-        restauranteEntity.setIdPropietario(4L);
-        when(restauranteRepository.findById(any())).thenReturn(Optional.of(restauranteEntity));
-        when(restauranteEntityMapper.toRestaurante(any())).thenReturn(new Restaurante());
-        CategoriaEntity categoriaEntity = new CategoriaEntity();
-        categoriaEntity.setId(2L);
-        when(categoriaRepository.findById(any())).thenReturn(Optional.of(categoriaEntity));
-        when(categoriaEntityMapper.toCategoria(any())).thenReturn(new Categoria());
+    void crearPlato(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante(
+                3L,
+                "nombre",
+                "123",
+                "local",
+                "3024261812",
+                "url",
+                2L
+        ));
+        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(new Categoria(
+                2L,
+                "Nombre categoria",
+                "description"
+        ));
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
 
         platoUseCase.crearPlato(plato);
 
         verify(platoPersistencePort).crearPlato(plato);
     }
+    @Test
+    void crearPlatoUsuarioNoAutorizado(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_CLIENTE");
+        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante(
+                3L,
+                "nombre",
+                "123",
+                "local",
+                "3024261812",
+                "url",
+                2L
+        ));
+        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(new Categoria(
+                2L,
+                "Nombre categoria",
+                "description"
+        ));
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+
+        assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.crearPlato(plato));
+    }
+    @Test
+    void crearPlatoPropietarioNoCoincide(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante(
+                3L,
+                "nombre",
+                "123",
+                "local",
+                "3024261812",
+                "url",
+                6L
+        ));
+        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(new Categoria(
+                2L,
+                "Nombre categoria",
+                "description"
+        ));
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+
+        assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.crearPlato(plato));
+    }
+    @Test
+    void modificarPlato(){
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+
+        platoUseCase.modificarPlato(1L,"1000","plato modificado");
+
+        verify(platoPersistencePort).modificarPlato(plato);
+    }
+    @Test
+    void modificarPlatoUsuarioNoAutorizado(){
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_CLIENTE");
+
+        assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.modificarPlato(1L,"1000","plato modificado"));
+    }
+    @Test
+    void modificarPlatoPropietarioNoCoincide(){
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("3");
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+
+        assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.modificarPlato(1L,"1000","plato modificado"));
+    }
+
 }

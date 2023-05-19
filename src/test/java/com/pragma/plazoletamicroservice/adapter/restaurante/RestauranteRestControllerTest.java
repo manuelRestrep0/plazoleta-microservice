@@ -1,5 +1,6 @@
 package com.pragma.plazoletamicroservice.adapter.restaurante;
 
+import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFeignClient;
 import com.pragma.plazoletamicroservice.adapters.driving.http.controller.RestauranteRestController;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.RestauranteRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IRestauranteHandler;
@@ -20,9 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ContextConfiguration(classes = RestauranteRestController.class)
 @SpringBootTest
-public class RestauranteRestControllerTest {
+class RestauranteRestControllerTest {
     @MockBean
     IRestauranteHandler restauranteHandler;
+    @MockBean
+    UsuarioFeignClient usuarioFeignClient;
     @InjectMocks
     @Autowired
     RestauranteRestController restauranteRestController;

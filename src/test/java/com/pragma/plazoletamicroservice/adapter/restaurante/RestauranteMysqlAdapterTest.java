@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ContextConfiguration(classes = RestauranteMysqlAdapter.class)
 @SpringBootTest
-public class RestauranteMysqlAdapterTest {
+class RestauranteMysqlAdapterTest {
     @MockBean
     IRestauranteRepository restauranteRepository;
     @MockBean

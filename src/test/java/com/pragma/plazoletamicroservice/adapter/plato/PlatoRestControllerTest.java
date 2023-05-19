@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ContextConfiguration(classes = PlatoRestController.class)
 @SpringBootTest
-public class PlatoRestControllerTest {
+class PlatoRestControllerTest {
     @MockBean
     IPlatoHandler platoHandler;
     @InjectMocks
@@ -38,7 +38,6 @@ public class PlatoRestControllerTest {
                 "Descripcion del plato",
                 "40000",
                 4L,
-                1L,
                 "https://twitter.com/home"
         );
         modificarPlatoRequestDto = new ModificarPlatoRequestDto(
