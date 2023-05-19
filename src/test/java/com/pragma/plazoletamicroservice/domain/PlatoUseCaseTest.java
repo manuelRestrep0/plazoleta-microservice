@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
 
 @ContextConfiguration(classes = PlatoUseCase.class)
 @SpringBootTest
-public class PlatoUseCaseTest {
+class PlatoUseCaseTest {
     @MockBean
     IPlatoPersistencePort platoPersistencePort;
     @MockBean
@@ -65,8 +65,7 @@ public class PlatoUseCaseTest {
                 new Restaurante(),
                 3L,
                 "urlImagen",
-                true,
-                4L
+                true
         );
     }
     @Test

@@ -17,11 +17,14 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     }
     @Override
     public void crearRestaurante(Restaurante restaurante) {
-        Long idPropietario = Long.parseLong(feignServicePort.obtenerIdPropietarioFromToken(Token.getToken()));
-        if(!feignServicePort.validarPropietario(idPropietario)){
+        String rolUsuarioActual = feignServicePort.obtenerRolFromToken(Token.getToken());
+        ValidacionPermisos validacionPermisos = new ValidacionPermisos();
+        validacionPermisos.validarRol(rolUsuarioActual,Constants.ROLE_ADMINISTRADOR);
+
+        if(!feignServicePort.validarPropietario(restaurante.getIdPropietario())){
             throw new UsuarioNoPropietarioException(Constants.USUARIO_NO_PROPIETARIO);
         }
-        restaurante.setIdPropietario(idPropietario);
+
         this.restaurantePersistencePort.crearRestaurante(restaurante);
     }
 }

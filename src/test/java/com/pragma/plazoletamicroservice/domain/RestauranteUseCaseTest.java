@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ContextConfiguration(classes = RestauranteUseCase.class)
 @SpringBootTest
-public class RestauranteUseCaseTest {
+class RestauranteUseCaseTest {
 
     @MockBean
     IRestaurantePersistencePort restaurantePersistencePort;

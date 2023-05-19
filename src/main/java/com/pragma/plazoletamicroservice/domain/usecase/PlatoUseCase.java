@@ -25,7 +25,12 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
     @Override
     public void crearPlato(Plato plato) {
+        String rolUsuarioActual = feignServicePort.obtenerRolFromToken(Token.getToken());
+        ValidacionPermisos validacionPermisos = new ValidacionPermisos();
+        validacionPermisos.validarRol(rolUsuarioActual,Constants.ROLE_PROPIETARIO);
+
         plato.setActivo(true);
+
         Long idPropietario = Long.parseLong(feignServicePort.obtenerIdPropietarioFromToken(Token.getToken()));
         Restaurante restaurante = restaurantePersistencePort.obtenerRestaurante(plato.getIdRestauranteAux());
         if(idPropietario.equals(restaurante.getIdPropietario())){
@@ -33,6 +38,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         } else{
             throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);
         }
+
         Categoria categoria = categoriaPersistencePort.obtenerCategoria(plato.getIdCategoriaAux());
         plato.setIdCategoria(categoria);
 
@@ -40,7 +46,12 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
     @Override
     public void modificarPlato(Long id,String precio, String descripcion) {
+        String rolUsuarioActual = feignServicePort.obtenerRolFromToken(Token.getToken());
+        ValidacionPermisos validacionPermisos = new ValidacionPermisos();
+        validacionPermisos.validarRol(rolUsuarioActual,Constants.ROLE_PROPIETARIO);
+
         Plato plato = platoPersistencePort.obtenerPlato(id);
+
         Long idPropietario = Long.parseLong(feignServicePort.obtenerIdPropietarioFromToken(Token.getToken()));
         if(!idPropietario.equals(plato.getIdRestaurante().getIdPropietario())) {
             throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);

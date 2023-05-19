@@ -18,6 +18,8 @@ public interface UsuarioFeignClient {
 
     @GetMapping(value = "/auth/obtener-id/{token}")
     String idUsuario(@PathVariable("token") String token);
+    @GetMapping(value = "/auth/obtener-rol/{token}")
+    String rolUsuario(@PathVariable("token") String token);
 
     @PostMapping(value = "/auth/login")
     ResponseEntity<JwtResponseDto> login(@RequestBody AuthRequestDto authRequestDto);

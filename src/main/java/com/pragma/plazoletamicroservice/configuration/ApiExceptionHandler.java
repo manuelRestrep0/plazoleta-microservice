@@ -6,6 +6,7 @@ import com.pragma.plazoletamicroservice.domain.exceptions.NombreRestauranteMalFo
 import com.pragma.plazoletamicroservice.domain.exceptions.PlatoNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
 import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoAutorizadoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoPropietarioException;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +37,15 @@ public class ApiExceptionHandler {
         ApiException apiException = new ApiException(
                 ex.getMessage(),
                 HttpStatus.BAD_REQUEST,
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(value={UsuarioNoAutorizadoException.class})
+    public ResponseEntity<Object> NoAutorizadoExceptionHandler(RuntimeException ex){
+        ApiException apiException = new ApiException(
+                ex.getMessage(),
+                HttpStatus.METHOD_NOT_ALLOWED,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
         return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);

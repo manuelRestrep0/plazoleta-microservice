@@ -4,5 +4,6 @@ public interface IFeignServicePort {
 
     boolean validarPropietario(Long id);
     String obtenerIdPropietarioFromToken(String token);
+    String obtenerRolFromToken(String token);
 
 }
