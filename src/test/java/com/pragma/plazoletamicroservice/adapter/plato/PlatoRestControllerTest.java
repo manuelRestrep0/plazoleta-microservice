@@ -67,4 +67,5 @@ class PlatoRestControllerTest {
 
         assertEquals(respuestaEsperada,respuesta);
     }
+
 }

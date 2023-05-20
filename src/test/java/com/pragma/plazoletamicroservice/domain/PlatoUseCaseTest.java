@@ -1,17 +1,7 @@
 package com.pragma.plazoletamicroservice.domain;
 
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.entity.CategoriaEntity;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.entity.RestauranteEntity;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.ICategoriaEntityMapper;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPlatoEntityMapper;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IRestauranteEntityMapper;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.ICategoriaRepository;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPlatoRepository;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IRestauranteRepository;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
-import com.pragma.plazoletamicroservice.domain.exceptions.CategoriaNoEncontradaException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
-import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoAutorizadoException;
 import com.pragma.plazoletamicroservice.domain.model.Categoria;
 import com.pragma.plazoletamicroservice.domain.model.Plato;
@@ -98,7 +88,7 @@ class PlatoUseCaseTest {
 
         platoUseCase.crearPlato(plato);
 
-        verify(platoPersistencePort).crearPlato(plato);
+        verify(platoPersistencePort).guardarPlato(plato);
     }
     @Test
     void crearPlatoUsuarioNoAutorizado(){
@@ -150,7 +140,7 @@ class PlatoUseCaseTest {
 
         platoUseCase.modificarPlato(1L,"1000","plato modificado");
 
-        verify(platoPersistencePort).modificarPlato(plato);
+        verify(platoPersistencePort).guardarPlato(plato);
     }
     @Test
     void modificarPlatoUsuarioNoAutorizado(){
@@ -167,6 +157,32 @@ class PlatoUseCaseTest {
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
 
         assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.modificarPlato(1L,"1000","plato modificado"));
+    }
+    @Test
+    void habilitacionPlato(){
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+
+        platoUseCase.habilitacionPlato(1L,false);
+
+        verify(platoPersistencePort).guardarPlato(plato);
+    }
+    @Test
+    void habilitacionPlatoNoAutorizado(){
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_CLIENTE");
+
+        assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.habilitacionPlato(1L,false));
+    }
+    @Test
+    void habilitacionPlatoOtroPropietario(){
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("3");
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+
+        assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.habilitacionPlato(1L,false));
     }
 
 }
