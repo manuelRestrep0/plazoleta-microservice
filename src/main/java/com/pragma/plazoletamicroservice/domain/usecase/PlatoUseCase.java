@@ -25,9 +25,8 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
     @Override
     public void crearPlato(Plato plato) {
-        String rolUsuarioActual = feignServicePort.obtenerRolFromToken(Token.getToken());
         ValidacionPermisos validacionPermisos = new ValidacionPermisos();
-        validacionPermisos.validarRol(rolUsuarioActual,Constants.ROLE_PROPIETARIO);
+        validacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constants.ROLE_PROPIETARIO);
 
         plato.setActivo(true);
 
@@ -42,13 +41,34 @@ public class PlatoUseCase implements IPlatoServicePort {
         Categoria categoria = categoriaPersistencePort.obtenerCategoria(plato.getIdCategoriaAux());
         plato.setIdCategoria(categoria);
 
-        this.platoPersistencePort.crearPlato(plato);
+        this.platoPersistencePort.guardarPlato(plato);
     }
     @Override
     public void modificarPlato(Long id,String precio, String descripcion) {
-        String rolUsuarioActual = feignServicePort.obtenerRolFromToken(Token.getToken());
+        Plato plato = validarPropietarioPlatoRestaurante(id);
+
+        if(precio != null){
+            plato.setPrecio(precio);
+        }
+        if(descripcion != null){
+            plato.setDescripcion(descripcion);
+        }
+
+        platoPersistencePort.guardarPlato(plato);
+    }
+
+    @Override
+    public void habilitacionPlato(Long id, Boolean estado) {
+        Plato plato = validarPropietarioPlatoRestaurante(id);
+
+        plato.setActivo(estado);
+
+        platoPersistencePort.guardarPlato(plato);
+    }
+
+    Plato validarPropietarioPlatoRestaurante(Long id){
         ValidacionPermisos validacionPermisos = new ValidacionPermisos();
-        validacionPermisos.validarRol(rolUsuarioActual,Constants.ROLE_PROPIETARIO);
+        validacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constants.ROLE_PROPIETARIO);
 
         Plato plato = platoPersistencePort.obtenerPlato(id);
 
@@ -56,12 +76,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         if(!idPropietario.equals(plato.getIdRestaurante().getIdPropietario())) {
             throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);
         }
-        if(precio != null){
-            plato.setPrecio(precio);
-        }
-        if(descripcion != null){
-            plato.setDescripcion(descripcion);
-        }
-        platoPersistencePort.modificarPlato(plato);
+
+        return plato;
     }
 }

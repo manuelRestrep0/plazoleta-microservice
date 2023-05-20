@@ -17,15 +17,9 @@ public class PlatoMysqlAdapter implements IPlatoPersistencePort {
     private final IPlatoEntityMapper platoEntityMapper;
 
     @Override
-    public void crearPlato(Plato plato) {
+    public void guardarPlato(Plato plato) {
         platoRepository.save(platoEntityMapper.toEntity(plato));
     }
-
-    @Override
-    public void modificarPlato(Plato plato) {
-        platoRepository.save(platoEntityMapper.toEntity(plato));
-    }
-
     @Override
     public Plato obtenerPlato(Long id) {
         Optional<PlatoEntity> platoEntity = platoRepository.findById(id);
