@@ -6,6 +6,9 @@ import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoPropietarioEx
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 public class RestauranteUseCase implements IRestauranteServicePort {
     private final IRestaurantePersistencePort restaurantePersistencePort;
@@ -26,5 +29,10 @@ public class RestauranteUseCase implements IRestauranteServicePort {
         }
 
         this.restaurantePersistencePort.crearRestaurante(restaurante);
+    }
+
+    @Override
+    public List<Page<Restaurante>> obtenerRestauranres(int elementos) {
+        return restaurantePersistencePort.obtenerRestaurantes(elementos);
     }
 }

@@ -9,7 +9,12 @@ import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontrad
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -33,5 +38,20 @@ public class RestauranteMysqlAdapter implements IRestaurantePersistencePort {
             throw new RestauranteNoEncontradoException(Constants.RESTAURANTE_NO_ENCONTRADO);
         }
         return restauranteEntityMapper.toRestaurante(restauranteEntity.get());
+    }
+    @Override
+    public List<Page<Restaurante>> obtenerRestaurantes(int elementos) {
+        List<Page<Restaurante>> paginas = new ArrayList<>();
+        int numeroPagina = 0;
+        Page<Restaurante> pagina;
+
+        do{
+            Pageable pageable = PageRequest.of(numeroPagina, elementos);
+            pagina = restauranteRepository.findAll(pageable).map(restauranteEntityMapper::toRestaurante);
+            paginas.add(pagina);
+            numeroPagina++;
+        } while( pagina.hasNext());
+
+        return paginas;
     }
 }
