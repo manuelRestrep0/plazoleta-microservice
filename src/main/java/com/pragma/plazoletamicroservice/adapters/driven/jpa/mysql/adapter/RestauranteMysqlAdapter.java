@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +45,8 @@ public class RestauranteMysqlAdapter implements IRestaurantePersistencePort {
         List<Page<Restaurante>> paginas = new ArrayList<>();
         int numeroPagina = 0;
         Page<Restaurante> pagina;
-
         do{
-            Pageable pageable = PageRequest.of(numeroPagina, elementos);
+            Pageable pageable = PageRequest.of(numeroPagina, elementos, Sort.by("nombre"));
             pagina = restauranteRepository.findAll(pageable).map(restauranteEntityMapper::toRestaurante);
             paginas.add(pagina);
             numeroPagina++;

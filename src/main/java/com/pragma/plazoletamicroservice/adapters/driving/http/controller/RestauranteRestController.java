@@ -5,6 +5,7 @@ import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.Restau
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.RestauranteResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IRestauranteHandler;
 import com.pragma.plazoletamicroservice.configuration.Constants;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,7 +37,7 @@ public class RestauranteRestController {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Restaurante creado",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
-                    @ApiResponse(responseCode = "409", description = "Propietario ya existente",
+                    @ApiResponse(responseCode = "409", description = "Restaurante ya existente",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
             })
     @PostMapping("/crear")
@@ -47,17 +48,24 @@ public class RestauranteRestController {
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,Constants.CREACION_EXITOSA_RESTAURANTE)
         );
     }
-    @GetMapping("/restaurantes/{elementos}")
+    @Operation(summary = "Listar restaurantes alfabeticamente",
+              responses = {
+        @ApiResponse(responseCode = "200", description = "Restaurantes listados",
+                content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
+        @ApiResponse(responseCode = "400", description = "Mala solicitud",
+                content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+    })
+    @GetMapping("/listar/{elementos}")
     public ResponseEntity<List<Page<RestauranteResponseDto>>> obtenerRestaurantes(@PathVariable("elementos") Integer elementos){
         List<Page<RestauranteResponseDto>> response = restauranteHandler.obtenerRestaurantes(elementos);
         return ResponseEntity.ok().body(response);
     }
+
+    @Hidden
     @GetMapping("/prueba/{token}")
     public ResponseEntity<String> pruebaId(@PathVariable("token") String token){
         String response = usuarioFeignClient.idUsuario(token);
         return ResponseEntity.ok().body(response);
     }
-
-
 
 }

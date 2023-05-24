@@ -21,8 +21,7 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     @Override
     public void crearRestaurante(Restaurante restaurante) {
         String rolUsuarioActual = feignServicePort.obtenerRolFromToken(Token.getToken());
-        ValidacionPermisos validacionPermisos = new ValidacionPermisos();
-        validacionPermisos.validarRol(rolUsuarioActual,Constants.ROLE_ADMINISTRADOR);
+        ValidacionPermisos.validarRol(rolUsuarioActual,Constants.ROLE_ADMINISTRADOR);
 
         if(!feignServicePort.validarPropietario(restaurante.getIdPropietario())){
             throw new UsuarioNoPropietarioException(Constants.USUARIO_NO_PROPIETARIO);
@@ -30,7 +29,6 @@ public class RestauranteUseCase implements IRestauranteServicePort {
 
         this.restaurantePersistencePort.crearRestaurante(restaurante);
     }
-
     @Override
     public List<Page<Restaurante>> obtenerRestauranres(int elementos) {
         return restaurantePersistencePort.obtenerRestaurantes(elementos);

@@ -60,6 +60,13 @@ public class PlatoRestController {
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,Constants.PLATO_MODIFICADO)
         );
     }
+    @Operation(summary = "Cambiar disponibilidada de un plato",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Plato modificado!",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
+                    @ApiResponse(responseCode = "400", description = "Mala solicitud de modificacion, por favor verifique los datos",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+            })
     @PatchMapping("/disponibilidad")
     public ResponseEntity<Map<String,String>> habilitacionPlato(@Valid @RequestBody PlatoHabilitacionRequestDto platoHabilitacionRequestDto){
         platoHandler.habilitacionPlato(platoHabilitacionRequestDto);

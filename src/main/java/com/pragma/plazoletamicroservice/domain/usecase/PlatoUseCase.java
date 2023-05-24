@@ -25,8 +25,7 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
     @Override
     public void crearPlato(Plato plato) {
-        ValidacionPermisos validacionPermisos = new ValidacionPermisos();
-        validacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constants.ROLE_PROPIETARIO);
+        ValidacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constants.ROLE_PROPIETARIO);
 
         plato.setActivo(true);
 
@@ -67,8 +66,7 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
 
     Plato validarPropietarioPlatoRestaurante(Long id){
-        ValidacionPermisos validacionPermisos = new ValidacionPermisos();
-        validacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constants.ROLE_PROPIETARIO);
+        ValidacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constants.ROLE_PROPIETARIO);
 
         Plato plato = platoPersistencePort.obtenerPlato(id);
 
@@ -76,7 +74,6 @@ public class PlatoUseCase implements IPlatoServicePort {
         if(!idPropietario.equals(plato.getIdRestaurante().getIdPropietario())) {
             throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);
         }
-
         return plato;
     }
 }
