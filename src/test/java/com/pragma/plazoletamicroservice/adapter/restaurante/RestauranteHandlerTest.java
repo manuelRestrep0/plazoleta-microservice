@@ -3,6 +3,7 @@ package com.pragma.plazoletamicroservice.adapter.restaurante;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.RestauranteRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.impl.RestauranteHandlerImpl;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IRestauranteRequestMapper;
+import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IRestauranteResponseMapper;
 import com.pragma.plazoletamicroservice.domain.api.IRestauranteServicePort;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,8 @@ class RestauranteHandlerTest {
     IRestauranteServicePort restauranteServicePort;
     @MockBean
     IRestauranteRequestMapper restauranteRequestMapper;
+    @MockBean
+    IRestauranteResponseMapper restauranteResponseMapper;
     @InjectMocks
     @Autowired
     RestauranteHandlerImpl restauranteHandler;
