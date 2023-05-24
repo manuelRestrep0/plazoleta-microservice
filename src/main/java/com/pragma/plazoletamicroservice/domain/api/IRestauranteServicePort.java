@@ -1,8 +1,12 @@
 package com.pragma.plazoletamicroservice.domain.api;
 
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 public interface IRestauranteServicePort {
 
     void crearRestaurante(Restaurante restaurante);
+    List<Page<Restaurante>> obtenerRestauranres(int elementos);
 }

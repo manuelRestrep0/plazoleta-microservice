@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,5 +67,11 @@ class RestauranteUseCaseTest {
         when(feignServicePort.validarPropietario(any())).thenReturn(false);
 
         assertThrows(UsuarioNoPropietarioException.class, () -> restauranteUseCase.crearRestaurante(restaurante));
+    }
+    @Test
+    void obtenerPaginasRestaurantes(){
+        restauranteUseCase.obtenerRestauranres(5);
+
+        verify(restaurantePersistencePort).obtenerRestaurantes(5);
     }
 }
