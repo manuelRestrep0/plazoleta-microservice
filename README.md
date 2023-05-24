@@ -8,7 +8,7 @@ URL swagger: [http://localhost:8090/swagger-ui/index.html](http://localhost:8090
 
 ## Endpoints
 
-### /restaurante/crear
+### /restaurante/crear          
 
 Recuerde que: 
 <ol>
@@ -38,3 +38,65 @@ La respuesta es un codigo 201 con el siguiente mensaje:
 	"mensaje": "Se ha creado el restaurante."
 }
 ```
+
+### /plato/agregar-plato         
+
+Ejemplo de la petición:
+
+```java {.highlight .highlight-source-java .bg-black}
+   "nombre": "string",
+  "idCategoria": Long,
+  "descripcion": "string",
+  "precio": "String numerico positivo",
+  "idRestaurante": Long,
+  "urlImagen": "string"
+```
+
+La respuesta:
+
+```java {.highlight .highlight-source-java .bg-black}
+{
+	"mensaje": "El plato ha sido creado."
+}
+```
+
+
+### /plato/modificar-plato            
+
+Ejemplo de la petición:
+
+```java {.highlight .highlight-source-java .bg-black}
+  "id": Long,
+  "precio": "String numerico positivo",
+  "descripcion": "string"
+```
+
+La respuesta: 
+
+```java {.highlight .highlight-source-java .bg-black}
+{
+	"mensaje": "El plato ha sido modificado"
+}
+```
+
+
+### /plato/disponibilidad
+
+En este endpoint se puede cambiar el estado de un plato para indicar si esta disponible o no disponible.
+Se le provee el id del plato y el estado al que se quiere ubicar, true para indicar que esta disponible 
+y false para indicar lo contrario.
+
+Ejemplo de la peticion:
+
+```java {.highlight .highlight-source-java .bg-black}
+  "id": Long,
+  "disponibilidad": boolean
+```
+
+
+### /restaurante/listar/{elementos}
+
+Este endpoint trae una lista de paginas de los restaurantes disponibles con su nombre y url. se le debe indicar el numero de elementos
+por pagina.
+
+
