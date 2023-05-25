@@ -10,6 +10,10 @@ import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import com.pragma.plazoletamicroservice.domain.spi.ICategoriaPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
+import org.springframework.data.domain.Page;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlatoUseCase implements IPlatoServicePort {
     private final IPlatoPersistencePort platoPersistencePort;
@@ -63,6 +67,14 @@ public class PlatoUseCase implements IPlatoServicePort {
         plato.setActivo(estado);
 
         platoPersistencePort.guardarPlato(plato);
+    }
+
+    @Override
+    public List<List<Plato>> obtenerPlatos(String nombre, Long id, int elementos) {
+        List<Page<Plato>> platos = platoPersistencePort.obtenerPlatos(nombre, id, elementos);
+        List<List<Plato>> respuesta = new ArrayList<>();
+        platos.forEach(page -> respuesta.add(page.getContent()));
+        return respuesta;
     }
 
     Plato validarPropietarioPlatoRestaurante(Long id){
