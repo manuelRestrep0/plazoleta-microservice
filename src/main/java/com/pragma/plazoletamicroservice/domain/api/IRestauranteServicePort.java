@@ -8,5 +8,5 @@ import java.util.List;
 public interface IRestauranteServicePort {
 
     void crearRestaurante(Restaurante restaurante);
-    List<Page<Restaurante>> obtenerRestauranres(int elementos);
+    List<Page<Restaurante>> obtenerRestaurantes(int elementos);
 }
