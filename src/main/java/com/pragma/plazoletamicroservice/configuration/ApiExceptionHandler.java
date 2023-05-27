@@ -2,6 +2,7 @@ package com.pragma.plazoletamicroservice.configuration;
 
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.exceptions.NitYaRegistradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.CategoriaNoEncontradaException;
+import com.pragma.plazoletamicroservice.domain.exceptions.ClientePedidoActivoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.NombreRestauranteMalFormatoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PlatoNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
@@ -32,7 +33,8 @@ public class ApiExceptionHandler {
                                 RestauranteNoEncontradoException.class,
                                 PlatoNoEncontradoException.class,
                                 CategoriaNoEncontradaException.class,
-                                PropietarioOtroRestauranteException.class})
+                                PropietarioOtroRestauranteException.class,
+                                ClientePedidoActivoException.class})
     public ResponseEntity<Object> BadRequestExceptionHandler(RuntimeException ex){
         ApiException apiException = new ApiException(
                 ex.getMessage(),

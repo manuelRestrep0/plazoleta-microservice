@@ -70,7 +70,7 @@ class RestauranteUseCaseTest {
     }
     @Test
     void obtenerPaginasRestaurantes(){
-        restauranteUseCase.obtenerRestauranres(5);
+        restauranteUseCase.obtenerRestaurantes(5);
 
         verify(restaurantePersistencePort).obtenerRestaurantes(5);
     }

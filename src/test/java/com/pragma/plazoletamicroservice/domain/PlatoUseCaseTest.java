@@ -16,9 +16,14 @@ import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ContextConfiguration;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,7 +55,6 @@ class PlatoUseCaseTest {
                         "Nombre categoria",
                         "description"
                 ),
-                2L,
                 "pollo frito con especias",
                 "20000",
                 new Restaurante(
@@ -62,7 +66,6 @@ class PlatoUseCaseTest {
                         "url",
                         2L
                 ),
-                3L,
                 "urlImagen",
                 true
         );
@@ -84,7 +87,7 @@ class PlatoUseCaseTest {
                 "Nombre categoria",
                 "description"
         ));
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
 
         platoUseCase.crearPlato(plato);
 
@@ -107,7 +110,7 @@ class PlatoUseCaseTest {
                 "Nombre categoria",
                 "description"
         ));
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
 
         assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.crearPlato(plato));
     }
@@ -128,14 +131,14 @@ class PlatoUseCaseTest {
                 "Nombre categoria",
                 "description"
         ));
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
 
         assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.crearPlato(plato));
     }
     @Test
     void modificarPlato(){
         when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
 
         platoUseCase.modificarPlato(1L,"1000","plato modificado");
@@ -145,7 +148,7 @@ class PlatoUseCaseTest {
     @Test
     void modificarPlatoUsuarioNoAutorizado(){
         when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_CLIENTE");
 
         assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.modificarPlato(1L,"1000","plato modificado"));
@@ -153,7 +156,7 @@ class PlatoUseCaseTest {
     @Test
     void modificarPlatoPropietarioNoCoincide(){
         when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("3");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("3");
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
 
         assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.modificarPlato(1L,"1000","plato modificado"));
@@ -161,7 +164,7 @@ class PlatoUseCaseTest {
     @Test
     void habilitacionPlato(){
         when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
 
         platoUseCase.habilitacionPlato(1L,false);
@@ -171,7 +174,7 @@ class PlatoUseCaseTest {
     @Test
     void habilitacionPlatoNoAutorizado(){
         when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("2");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_CLIENTE");
 
         assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.habilitacionPlato(1L,false));
@@ -179,10 +182,22 @@ class PlatoUseCaseTest {
     @Test
     void habilitacionPlatoOtroPropietario(){
         when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdPropietarioFromToken(any())).thenReturn("3");
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("3");
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
 
         assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.habilitacionPlato(1L,false));
+    }
+
+    @Test
+    void obtenerPlatos(){
+        List<Page<Plato>> platos = new ArrayList<>();
+        when(platoPersistencePort.obtenerPlatos("nombre categoria",1L,5)).thenReturn(platos);
+
+        List<List<Plato>> respuesta = platoUseCase.obtenerPlatos("nombre categoria",1L,5);
+        List<List<Plato>> respuestaEsperada = new ArrayList<>();
+
+        assertEquals(respuestaEsperada,respuesta);
+        verify(platoPersistencePort).obtenerPlatos("nombre categoria",1L,5);
     }
 
 }

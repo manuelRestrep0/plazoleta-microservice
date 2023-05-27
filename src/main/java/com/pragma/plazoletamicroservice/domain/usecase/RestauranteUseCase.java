@@ -30,7 +30,7 @@ public class RestauranteUseCase implements IRestauranteServicePort {
         this.restaurantePersistencePort.crearRestaurante(restaurante);
     }
     @Override
-    public List<Page<Restaurante>> obtenerRestauranres(int elementos) {
+    public List<Page<Restaurante>> obtenerRestaurantes(int elementos) {
         return restaurantePersistencePort.obtenerRestaurantes(elementos);
     }
 }
