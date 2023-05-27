@@ -17,7 +17,7 @@ public class PedidoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long clienteId;
+    private Long idCliente;
     private String fecha;
     private String estado;
     private Long idChef;

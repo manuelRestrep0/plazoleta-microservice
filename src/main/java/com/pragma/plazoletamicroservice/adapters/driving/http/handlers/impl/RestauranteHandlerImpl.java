@@ -28,7 +28,7 @@ public class RestauranteHandlerImpl implements IRestauranteHandler {
 
     @Override
     public List<List<RestauranteResponseDto>> obtenerRestaurantes(int elementos) {
-        List<Page<Restaurante>> restaurantes = restauranteServicePort.obtenerRestauranres(elementos);
+        List<Page<Restaurante>> restaurantes = restauranteServicePort.obtenerRestaurantes(elementos);
         List<List<RestauranteResponseDto>> respuesta = new ArrayList<>();
         restaurantes.forEach(restaurantePage -> respuesta.add(restaurantePage.map(restauranteResponseMapper::toResponse).getContent()));
         return respuesta;

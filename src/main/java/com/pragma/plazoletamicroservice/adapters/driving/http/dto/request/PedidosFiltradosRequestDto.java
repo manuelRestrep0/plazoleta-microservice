@@ -1,20 +1,18 @@
 package com.pragma.plazoletamicroservice.adapters.driving.http.dto.request;
 
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
-import org.hibernate.validator.constraints.UniqueElements;
-
-import java.util.List;
 
 @Data
-public class PedidoRequestDto {
-
+public class PedidosFiltradosRequestDto {
     @NotNull
     @Positive
     private Long idRestaurante;
-    @UniqueElements
-    @Valid
-    private List<PlatoPedidoRequestDto> platos;
+    @NotBlank
+    private String estado;
+    @NotNull
+    @Positive
+    private int elementos;
 }

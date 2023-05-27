@@ -33,15 +33,15 @@ public class PlatoUseCase implements IPlatoServicePort {
 
         plato.setActivo(true);
 
-        Long idPropietario = Long.parseLong(feignServicePort.obtenerIdPropietarioFromToken(Token.getToken()));
-        Restaurante restaurante = restaurantePersistencePort.obtenerRestaurante(plato.getIdRestauranteAux());
+        Long idPropietario = Long.parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
+        Restaurante restaurante = restaurantePersistencePort.obtenerRestaurante(plato.getIdRestaurante().getId());
         if(idPropietario.equals(restaurante.getIdPropietario())){
             plato.setIdRestaurante(restaurante);
         } else{
             throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);
         }
 
-        Categoria categoria = categoriaPersistencePort.obtenerCategoria(plato.getIdCategoriaAux());
+        Categoria categoria = categoriaPersistencePort.obtenerCategoria(plato.getIdCategoria().getId());
         plato.setIdCategoria(categoria);
 
         this.platoPersistencePort.guardarPlato(plato);
@@ -82,7 +82,7 @@ public class PlatoUseCase implements IPlatoServicePort {
 
         Plato plato = platoPersistencePort.obtenerPlato(id);
 
-        Long idPropietario = Long.parseLong(feignServicePort.obtenerIdPropietarioFromToken(Token.getToken()));
+        Long idPropietario = Long.parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
         if(!idPropietario.equals(plato.getIdRestaurante().getIdPropietario())) {
             throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);
         }
