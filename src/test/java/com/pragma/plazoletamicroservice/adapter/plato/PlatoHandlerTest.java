@@ -4,6 +4,7 @@ import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.Modifi
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PlatoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.impl.PlatoHandlerImpl;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPlatoRequestDtoMapper;
+import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPlatoResponseDtoMapper;
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
 import com.pragma.plazoletamicroservice.domain.model.Plato;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,8 @@ class PlatoHandlerTest {
     IPlatoServicePort platoServicePort;
     @MockBean
     IPlatoRequestDtoMapper platoRequestDtoMapper;
+    @MockBean
+    IPlatoResponseDtoMapper platoResponseDtoMapper;
     @InjectMocks
     @Autowired
     PlatoHandlerImpl platoHandler;
