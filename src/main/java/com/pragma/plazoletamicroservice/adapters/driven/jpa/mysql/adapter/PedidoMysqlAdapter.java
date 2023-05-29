@@ -2,10 +2,12 @@ package com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter;
 
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.entity.PedidoEntity;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.entity.PedidoPlatoEntity;
+import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.exceptions.PedidoNoExisteException;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPedidoEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPedidoPlatoEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPedidoPlatoRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPedidoRepository;
+import com.pragma.plazoletamicroservice.configuration.Constants;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import com.pragma.plazoletamicroservice.domain.spi.IPedidoPersistencePort;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class PedidoMysqlAdapter implements IPedidoPersistencePort {
@@ -52,5 +55,35 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
             numeroPagina++;
         } while (pagina.hasNext());
         return paginas;
+    }
+
+    @Override
+    public Pedido obtenerPedido(Long id) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(id);
+        if(pedido.isEmpty()){
+            throw new PedidoNoExisteException(Constants.PEDIDO_NO_REGISTRADO);
+        }
+        return pedidoEntityMapper.toPedido(pedido.get());
+    }
+
+    @Override
+    public void actualizarPedido(Long idPedido, String estado, Long idChef) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        if(pedido.isEmpty()){
+            throw new PedidoNoExisteException(Constants.PEDIDO_NO_REGISTRADO);
+        }
+        PedidoEntity pedidoEntity = pedido.get();
+        pedidoEntity.setEstado(estado);
+        pedidoEntity.setIdChef(idChef);
+        pedidoRepository.save(pedidoEntity);
+    }
+
+    @Override
+    public boolean validadRestaurantePedido(Long idRestaurante, Long idPedido) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        if(pedido.isEmpty()){
+            throw new PedidoNoExisteException(Constants.PEDIDO_NO_REGISTRADO);
+        }
+        return idRestaurante.equals(pedido.get().getIdRestaurante().getId());
     }
 }

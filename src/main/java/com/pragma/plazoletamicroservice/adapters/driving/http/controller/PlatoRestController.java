@@ -78,6 +78,13 @@ public class PlatoRestController {
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,Constants.PLATO_MODIFICADO)
         );
     }
+    @Operation(summary = "Listar platos de un restaurante",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Platos devueltos",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
+                    @ApiResponse(responseCode = "400", description = "Mala solicitud de registro, por favor verifique los datos",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+            })
     @GetMapping("/listar")
     public List<List<PlatoResponseDto>> obtenerPlatos(@RequestParam(defaultValue = "all")String nombreCategoria, @RequestParam("restaurante") Long restaurante, @RequestParam("elementos") int elementos){
         return platoHandler.obtenerPlatos(nombreCategoria, restaurante, elementos);
