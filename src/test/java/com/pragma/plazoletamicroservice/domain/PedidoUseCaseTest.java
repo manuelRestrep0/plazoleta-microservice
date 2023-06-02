@@ -25,6 +25,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -71,7 +72,6 @@ class PedidoUseCaseTest {
 
     @Test
     void crearPedido(){
-        Pedido ped = new Pedido();
         when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("1");
         when(pedidoPersistencePort.verificarPedidoCliente(any())).thenReturn(false);
         when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante());
@@ -79,7 +79,7 @@ class PedidoUseCaseTest {
 
         pedidoUseCase.generarPedido(1L,platos);
 
-        //verify(pedidoPersistencePort).guardarPedido(ped,platos);
+        //verify(pedidoPersistencePort).guardarPedido(pedido,platos);
     }
     @Test
     void crearPedidoUsuarioPedidoActivo(){

@@ -4,10 +4,8 @@ import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.Asigna
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PlatoPedidoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.PedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IPedidoHandler;
-import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPedidoPlatoResponseDtoMapper;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPedidoResponseDtoMapper;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPlatoPedidoRequestDtoMapper;
-import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPlatoResponseDtoMapper;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
@@ -23,9 +21,7 @@ public class PedidoHandlerImpl implements IPedidoHandler {
 
     private final IPedidoServicePort pedidoServicePort;
     private final IPlatoPedidoRequestDtoMapper platoPedidoRequestDtoMapper;
-    private final IPedidoPlatoResponseDtoMapper pedidoPlatoResponseDtoMapper;
     private final IPedidoResponseDtoMapper pedidoResponseDtoMapper;
-    private final IPlatoResponseDtoMapper platoResponseDtoMapper;
 
     @Override
     public void generarPedido(Long idRestaurante, List<PlatoPedidoRequestDto> platos) {
@@ -46,5 +42,10 @@ public class PedidoHandlerImpl implements IPedidoHandler {
     @Override
     public void asignarPedidoEmpleado(AsignarPedidoRequestDto asignarPedidoRequestDto) {
         pedidoServicePort.asignarPedido(asignarPedidoRequestDto.getIdRestaurante(), asignarPedidoRequestDto.getPedidos());
+    }
+
+    @Override
+    public Integer marcarPedido(Long id) {
+        return pedidoServicePort.marcarPedido(id);
     }
 }

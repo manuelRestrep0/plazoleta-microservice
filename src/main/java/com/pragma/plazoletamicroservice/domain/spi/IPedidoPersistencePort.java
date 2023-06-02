@@ -18,6 +18,8 @@ public interface IPedidoPersistencePort {
 
     void actualizarPedido(Long idPedido, String estado, Long idChef);
 
+    void actualizarPedido(Long idPedido, String estado);
+
     boolean validadRestaurantePedido(Long idRestaurante, Long idPedido);
 
 }

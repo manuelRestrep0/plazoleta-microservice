@@ -13,4 +13,6 @@ public interface IPedidoHandler {
     List<List<PedidoResponseDto>> obtenerPedidosPorEstado(Long id, String estado, int elementos);
 
     void asignarPedidoEmpleado(AsignarPedidoRequestDto pedidos);
+
+    Integer marcarPedido(Long id);
 }

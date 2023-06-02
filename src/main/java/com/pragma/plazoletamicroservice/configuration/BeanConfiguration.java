@@ -16,7 +16,10 @@ import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPl
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IRestauranteRepository;
 import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFeignClient;
 import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFeignHandlerImp;
+import com.pragma.plazoletamicroservice.adapters.driving.feign.mensajeria.MensajeriaFeignClient;
+import com.pragma.plazoletamicroservice.adapters.driving.feign.mensajeria.MensajeriaFiegnHandlerImpl;
 import com.pragma.plazoletamicroservice.domain.api.IAuthServicePort;
+import com.pragma.plazoletamicroservice.domain.api.IMensajeriaServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IRestauranteServicePort;
@@ -48,6 +51,7 @@ public class BeanConfiguration {
     private final IPedidoEntityMapper pedidoEntityMapper;
     private final IPedidoPlatoRepository pedidoPlatoRepository;
     private final IPedidoPlatoEntityMapper pedidoPlatoEntityMapper;
+    private final MensajeriaFeignClient mensajeriaFeignClient;
 
     @Bean
     public IRestauranteServicePort restauranteServicePort(){
@@ -79,10 +83,14 @@ public class BeanConfiguration {
     }
     @Bean
     public IPedidoServicePort pedidoServicePort(){
-        return new PedidoUseCase(pedidoPersistencePort(),restaurantePersistencePort(), platoPersistencePort(), feignServicePort());
+        return new PedidoUseCase(pedidoPersistencePort(),restaurantePersistencePort(), platoPersistencePort(), feignServicePort(), mensajeriaServicePort());
     }
     @Bean
     public IPedidoPersistencePort pedidoPersistencePort(){
         return new PedidoMysqlAdapter(pedidoRepository,pedidoEntityMapper,pedidoPlatoRepository,pedidoPlatoEntityMapper);
+    }
+    @Bean
+    public IMensajeriaServicePort mensajeriaServicePort(){
+        return new MensajeriaFiegnHandlerImpl(mensajeriaFeignClient);
     }
 }

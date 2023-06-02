@@ -2,6 +2,7 @@ package com.pragma.plazoletamicroservice.domain.usecase;
 
 import com.pragma.plazoletamicroservice.configuration.Constants;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
+import com.pragma.plazoletamicroservice.domain.api.IMensajeriaServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
 import com.pragma.plazoletamicroservice.domain.exceptions.ClientePedidoActivoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PedidoRestauranteDiferenteException;
@@ -23,12 +24,14 @@ public class PedidoUseCase implements IPedidoServicePort {
     private final IRestaurantePersistencePort restaurantePersistencePort;
     private final IPlatoPersistencePort platoPersistencePort;
     private final IFeignServicePort feignServicePort;
+    private final IMensajeriaServicePort mensajeriaServicePort;
 
-    public PedidoUseCase(IPedidoPersistencePort pedidoPersistencePort, IRestaurantePersistencePort restaurantePersistencePort, IPlatoPersistencePort platoPersistencePort, IFeignServicePort feignServicePort) {
+    public PedidoUseCase(IPedidoPersistencePort pedidoPersistencePort, IRestaurantePersistencePort restaurantePersistencePort, IPlatoPersistencePort platoPersistencePort, IFeignServicePort feignServicePort, IMensajeriaServicePort mensajeriaServicePort) {
         this.pedidoPersistencePort = pedidoPersistencePort;
         this.restaurantePersistencePort = restaurantePersistencePort;
         this.platoPersistencePort = platoPersistencePort;
         this.feignServicePort = feignServicePort;
+        this.mensajeriaServicePort = mensajeriaServicePort;
     }
 
     @Override
@@ -42,7 +45,6 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setIdCliente(idCliente);
         pedido.setFecha(LocalDate.now());
         pedido.setEstado(Constants.PEDIDO_PENDIENTE);
-        pedido.setIdChef(0L);
         platos.forEach(plato -> plato.setIdPlato(platoPersistencePort.obtenerPlato(plato.getIdPlato().getId())));
         platos.forEach(plato -> plato.setIdPedido(pedido));
 
@@ -66,12 +68,18 @@ public class PedidoUseCase implements IPedidoServicePort {
         Long idEmpleado = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
         for (Long idPedido:
              pedidos) {
-
             if(!pedidoPersistencePort.validadRestaurantePedido(idRestaurante,idPedido)){
                    throw new PedidoRestauranteDiferenteException("El pedido "+idPedido+Constants.PEDIDOS_DIFERENTES_RESTAURANTES);
             }
             pedidoPersistencePort.actualizarPedido(idPedido,Constants.PEDIDO_EN_PREPARACION,idEmpleado);
         }
+    }
+
+    @Override
+    public Integer marcarPedido(Long id) {
+        validarRolEmpleado();
+        pedidoPersistencePort.actualizarPedido(id,"Listo");
+        return mensajeriaServicePort.enviarMensaje();
     }
 
     private void validarRolEmpleado(){

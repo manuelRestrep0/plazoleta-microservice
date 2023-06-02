@@ -77,6 +77,16 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
         pedidoEntity.setIdChef(idChef);
         pedidoRepository.save(pedidoEntity);
     }
+    @Override
+    public void actualizarPedido(Long idPedido, String estado){
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        if(pedido.isEmpty()){
+            throw new PedidoNoExisteException(Constants.PEDIDO_NO_REGISTRADO);
+        }
+        PedidoEntity pedidoEntity = pedido.get();
+        pedidoEntity.setEstado(estado);
+        pedidoRepository.save(pedidoEntity);
+    }
 
     @Override
     public boolean validadRestaurantePedido(Long idRestaurante, Long idPedido) {
