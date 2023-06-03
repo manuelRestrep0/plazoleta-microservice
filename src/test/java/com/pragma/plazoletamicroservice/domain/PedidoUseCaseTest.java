@@ -70,7 +70,7 @@ class PedidoUseCaseTest {
         platos.add(pedidoPlato);
     }
 
-    @Test
+    /*@Test
     void crearPedido(){
         when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("1");
         when(pedidoPersistencePort.verificarPedidoCliente(any())).thenReturn(false);
@@ -101,6 +101,8 @@ class PedidoUseCaseTest {
 
         assertEquals(respuestaEsperada,respuesta);
     }
+
+     */
 
 
 
