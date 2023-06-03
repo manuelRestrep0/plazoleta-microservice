@@ -2,7 +2,7 @@ package com.pragma.plazoletamicroservice.adapter.restaurante;
 
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.RestauranteMysqlAdapter;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.entity.RestauranteEntity;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.exceptions.NitYaRegistradoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.NitYaRegistradoException;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IRestauranteEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IRestauranteRepository;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;

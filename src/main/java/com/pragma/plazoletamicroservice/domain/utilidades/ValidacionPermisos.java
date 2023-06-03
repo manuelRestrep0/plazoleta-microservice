@@ -1,6 +1,5 @@
-package com.pragma.plazoletamicroservice.domain.usecase;
+package com.pragma.plazoletamicroservice.domain.utilidades;
 
-import com.pragma.plazoletamicroservice.configuration.Constants;
 import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoAutorizadoException;
 
 public class ValidacionPermisos {
@@ -9,7 +8,7 @@ public class ValidacionPermisos {
     }
     public static void validarRol(String rolUsuario, String rolAutorizado){
         if(!rolUsuario.equals(rolAutorizado)){
-            throw new UsuarioNoAutorizadoException(Constants.USUARIO_NO_AUTORIZADO);
+            throw new UsuarioNoAutorizadoException(Constantes.USUARIO_NO_AUTORIZADO);
         }
     }
 

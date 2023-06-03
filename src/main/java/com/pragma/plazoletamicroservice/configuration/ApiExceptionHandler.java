@@ -1,6 +1,6 @@
 package com.pragma.plazoletamicroservice.configuration;
 
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.exceptions.NitYaRegistradoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.NitYaRegistradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.CategoriaNoEncontradaException;
 import com.pragma.plazoletamicroservice.domain.exceptions.ClientePedidoActivoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.NombreRestauranteMalFormatoException;
@@ -69,10 +69,10 @@ public class ApiExceptionHandler {
     public ResponseEntity<Object> handleFeignStatusException(FeignException e, HttpServletResponse response) {
         ApiException apiException = new ApiException(
                 e.getMessage(),
-                HttpStatus.BAD_REQUEST,
+                HttpStatus.FORBIDDEN,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
-        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiException, HttpStatus.FORBIDDEN);
 
     }
 

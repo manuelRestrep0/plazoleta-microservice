@@ -1,4 +1,4 @@
-package com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.exceptions;
+package com.pragma.plazoletamicroservice.domain.exceptions;
 
 public class PedidoNoExisteException extends RuntimeException{
 

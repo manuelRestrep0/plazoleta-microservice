@@ -15,6 +15,7 @@ public interface IPedidoPersistencePort {
     List<Page<Pedido>> obtenerPedidos(Long id, String estado, int elementos);
 
     Pedido obtenerPedido(Long id);
+    boolean pedidoExiste(Long id);
 
     void actualizarPedido(Long idPedido, String estado, Long idChef);
 

@@ -1,4 +1,4 @@
-package com.pragma.plazoletamicroservice.domain.usecase;
+package com.pragma.plazoletamicroservice.domain.utilidades;
 
 public class Token {
     private static String token;
