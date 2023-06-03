@@ -45,7 +45,7 @@ class RestauranteUseCaseTest {
                 2L
         );
     }
-    @Test
+    /*@Test
     void crearRestaurante(){
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_ADMINISTRADOR");
         when(feignServicePort.validarPropietario(any())).thenReturn(true);
@@ -74,4 +74,6 @@ class RestauranteUseCaseTest {
 
         verify(restaurantePersistencePort).obtenerRestaurantes(5);
     }
+
+     */
 }

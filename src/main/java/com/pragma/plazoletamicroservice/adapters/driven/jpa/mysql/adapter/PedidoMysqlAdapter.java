@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class PedidoMysqlAdapter implements IPedidoPersistencePort {
@@ -47,10 +48,56 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
         Page<Pedido> pagina;
         do{
             Pageable pageable = PageRequest.of(numeroPagina,elementos);
-            pagina = pedidoRepository.findAllByIdRestaurante_IdAndAndEstado(id,estado,pageable).map(pedidoEntityMapper::toPedido);
+            pagina = pedidoRepository.findAllByIdRestaurante_IdAndEstado(id,estado,pageable).map(pedidoEntityMapper::toPedido);
             paginas.add(pagina);
             numeroPagina++;
         } while (pagina.hasNext());
         return paginas;
+    }
+
+    @Override
+    public Pedido obtenerPedido(Long id) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(id);
+        return pedidoEntityMapper.toPedido(pedido.get());
+    }
+
+    @Override
+    public boolean pedidoExiste(Long id) {
+        return pedidoRepository.existsById(id);
+    }
+
+    @Override
+    public boolean pedidoVerificarCodigo(Long id, Integer codigo) {
+        return pedidoRepository.existsByIdAndCodigoVerificacion(id,codigo);
+    }
+
+    @Override
+    public void actualizarPedido(Long idPedido, String estado, Long idChef) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        if(pedido.isPresent()){
+            PedidoEntity pedidoEntity = pedido.get();
+            pedidoEntity.setEstado(estado);
+            pedidoEntity.setIdChef(idChef);
+            pedidoRepository.save(pedidoEntity);
+        }
+    }
+    @Override
+    public void actualizarPedido(Long idPedido, String estado){
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        if(pedido.isPresent()){
+            PedidoEntity pedidoEntity = pedido.get();
+            pedidoEntity.setEstado(estado);
+            pedidoRepository.save(pedidoEntity);
+        }
+    }
+    @Override
+    public boolean validadRestaurantePedido(Long idRestaurante, Long idPedido) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        return pedido.filter(pedidoEntity -> idRestaurante.equals(pedidoEntity.getIdRestaurante().getId())).isPresent();
+    }
+
+    @Override
+    public boolean validadEstadoPedido(Long id, String estado) {
+        return pedidoRepository.existsByIdAndEstado(id,estado);
     }
 }

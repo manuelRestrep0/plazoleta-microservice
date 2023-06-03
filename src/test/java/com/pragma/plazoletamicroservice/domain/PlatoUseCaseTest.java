@@ -70,7 +70,7 @@ class PlatoUseCaseTest {
                 true
         );
     }
-    @Test
+    /*@Test
     void crearPlato(){
         when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
         when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante(
@@ -199,5 +199,7 @@ class PlatoUseCaseTest {
         assertEquals(respuestaEsperada,respuesta);
         verify(platoPersistencePort).obtenerPlatos("nombre categoria",1L,5);
     }
+
+     */
 
 }

@@ -1,9 +1,10 @@
 package com.pragma.plazoletamicroservice.configuration;
 
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.exceptions.NitYaRegistradoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.NitYaRegistradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.CategoriaNoEncontradaException;
 import com.pragma.plazoletamicroservice.domain.exceptions.ClientePedidoActivoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.NombreRestauranteMalFormatoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.PedidoEstadoNoValidoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PlatoNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
 import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
@@ -34,7 +35,8 @@ public class ApiExceptionHandler {
                                 PlatoNoEncontradoException.class,
                                 CategoriaNoEncontradaException.class,
                                 PropietarioOtroRestauranteException.class,
-                                ClientePedidoActivoException.class})
+                                ClientePedidoActivoException.class,
+                                PedidoEstadoNoValidoException.class})
     public ResponseEntity<Object> BadRequestExceptionHandler(RuntimeException ex){
         ApiException apiException = new ApiException(
                 ex.getMessage(),
@@ -69,10 +71,10 @@ public class ApiExceptionHandler {
     public ResponseEntity<Object> handleFeignStatusException(FeignException e, HttpServletResponse response) {
         ApiException apiException = new ApiException(
                 e.getMessage(),
-                HttpStatus.BAD_REQUEST,
+                HttpStatus.FORBIDDEN,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
-        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiException, HttpStatus.FORBIDDEN);
 
     }
 

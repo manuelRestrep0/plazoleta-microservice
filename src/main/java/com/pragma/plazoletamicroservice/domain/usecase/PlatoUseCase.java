@@ -1,19 +1,24 @@
 package com.pragma.plazoletamicroservice.domain.usecase;
 
-import com.pragma.plazoletamicroservice.configuration.Constants;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
+import com.pragma.plazoletamicroservice.domain.exceptions.PlatoNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
+import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.model.Categoria;
 import com.pragma.plazoletamicroservice.domain.model.Plato;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import com.pragma.plazoletamicroservice.domain.spi.ICategoriaPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
+import com.pragma.plazoletamicroservice.domain.utilidades.Constantes;
+import com.pragma.plazoletamicroservice.domain.utilidades.Token;
+import com.pragma.plazoletamicroservice.domain.utilidades.ValidacionPermisos;
 import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PlatoUseCase implements IPlatoServicePort {
     private final IPlatoPersistencePort platoPersistencePort;
@@ -29,16 +34,16 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
     @Override
     public void crearPlato(Plato plato) {
-        ValidacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constants.ROLE_PROPIETARIO);
+        ValidacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()), Constantes.ROLE_PROPIETARIO);
 
         plato.setActivo(true);
 
         Long idPropietario = Long.parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
-        Restaurante restaurante = restaurantePersistencePort.obtenerRestaurante(plato.getIdRestaurante().getId());
+        Restaurante restaurante = obtenerRestaurante(restaurantePersistencePort.obtenerRestaurante(plato.getIdRestaurante().getId()));
         if(idPropietario.equals(restaurante.getIdPropietario())){
             plato.setIdRestaurante(restaurante);
         } else{
-            throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);
+            throw new PropietarioOtroRestauranteException(Constantes.PROPIETARIO_DIFERENTE);
         }
 
         Categoria categoria = categoriaPersistencePort.obtenerCategoria(plato.getIdCategoria().getId());
@@ -78,14 +83,26 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
 
     Plato validarPropietarioPlatoRestaurante(Long id){
-        ValidacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constants.ROLE_PROPIETARIO);
+        ValidacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constantes.ROLE_PROPIETARIO);
 
-        Plato plato = platoPersistencePort.obtenerPlato(id);
+        Plato plato = obtenerPlato(platoPersistencePort.obtenerPlato(id));
 
         Long idPropietario = Long.parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
         if(!idPropietario.equals(plato.getIdRestaurante().getIdPropietario())) {
-            throw new PropietarioOtroRestauranteException(Constants.PROPIETARIO_DIFERENTE);
+            throw new PropietarioOtroRestauranteException(Constantes.PROPIETARIO_DIFERENTE);
         }
         return plato;
+    }
+    private Restaurante obtenerRestaurante(Optional<Restaurante> restaurante){
+        if (restaurante.isEmpty()){
+            throw new RestauranteNoEncontradoException(Constantes.RESTAURANTE_NO_ENCONTRADO);
+        }
+        return restaurante.get();
+    }
+    private Plato obtenerPlato(Optional<Plato> plato){
+        if(plato.isEmpty()){
+            throw new PlatoNoEncontradoException(Constantes.PLATO_NO_REGISTRADO);
+        }
+        return plato.get();
     }
 }

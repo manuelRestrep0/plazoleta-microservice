@@ -11,6 +11,7 @@ public interface IPedidoRepository extends JpaRepository<PedidoEntity,Long> {
 
     Optional<PedidoEntity> findByIdCliente(Long idCliente);
     Boolean existsByIdCliente(Long idCliente);
-
-    Page<PedidoEntity> findAllByIdRestaurante_IdAndAndEstado(Long id, String estado, Pageable pageable);
+    boolean existsByIdAndEstado(Long id, String estado);
+    boolean existsByIdAndCodigoVerificacion(Long id, Integer codigo);
+    Page<PedidoEntity> findAllByIdRestaurante_IdAndEstado(Long id, String estado, Pageable pageable);
 }

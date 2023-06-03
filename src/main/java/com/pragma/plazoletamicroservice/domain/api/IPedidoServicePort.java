@@ -9,4 +9,6 @@ public interface IPedidoServicePort {
 
     void generarPedido(Long idRestaurante, List<PedidoPlato> platos);
     List<List<Pedido>> obtenerPedidosPorEstado(Long idRestaurante,String estado, int elementos);
+    void asignarPedido(Long idRestaurante, List<Long> pedidos);
+    Integer marcarPedidoListo(Long id);
 }
