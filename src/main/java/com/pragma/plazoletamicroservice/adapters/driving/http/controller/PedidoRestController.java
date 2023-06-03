@@ -2,7 +2,6 @@ package com.pragma.plazoletamicroservice.adapters.driving.http.controller;
 
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.AsignarPedidoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PedidoRequestDto;
-import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PedidosFiltradosRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.PedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IPedidoHandler;
 import com.pragma.plazoletamicroservice.configuration.Constants;
@@ -54,8 +53,8 @@ public class PedidoRestController {
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
             })
     @GetMapping("/obtener-pedidos")
-    public List<List<PedidoResponseDto>> obtenerPedidos(@RequestBody PedidosFiltradosRequestDto pedidosFiltradosRequestDto){
-        return pedidoHandler.obtenerPedidosPorEstado(pedidosFiltradosRequestDto.getIdRestaurante(), pedidosFiltradosRequestDto.getEstado(), pedidosFiltradosRequestDto.getElementos());
+    public List<List<PedidoResponseDto>> obtenerPedidos(@RequestParam("idRestaurante") Long idRestaurante, @RequestParam("estado") String estado, @RequestParam("elementos") Integer elementos){
+        return pedidoHandler.obtenerPedidosPorEstado(idRestaurante,estado,elementos);
     }
 
     @Operation(summary = "Asignar pedidos",
@@ -75,7 +74,7 @@ public class PedidoRestController {
 
     @PatchMapping("/pedido-listo/{id}")
     public ResponseEntity<Map<String,String>> marcarPedidoListo(@RequestParam("id") Long id){
-        pedidoHandler.marcarPedido(id);
+        pedidoHandler.marcarPedidoListo(id);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,"Pedido Listo.")
         );

@@ -23,5 +23,6 @@ public class PedidoEntity {
     private Long idChef;
     @OneToOne
     private RestauranteEntity idRestaurante;
+    private Integer codigoVerificacion;
 
 }

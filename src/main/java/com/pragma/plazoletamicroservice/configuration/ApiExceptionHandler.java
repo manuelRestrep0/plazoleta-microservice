@@ -4,6 +4,7 @@ import com.pragma.plazoletamicroservice.domain.exceptions.NitYaRegistradoExcepti
 import com.pragma.plazoletamicroservice.domain.exceptions.CategoriaNoEncontradaException;
 import com.pragma.plazoletamicroservice.domain.exceptions.ClientePedidoActivoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.NombreRestauranteMalFormatoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.PedidoEstadoNoValidoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PlatoNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
 import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
@@ -34,7 +35,8 @@ public class ApiExceptionHandler {
                                 PlatoNoEncontradoException.class,
                                 CategoriaNoEncontradaException.class,
                                 PropietarioOtroRestauranteException.class,
-                                ClientePedidoActivoException.class})
+                                ClientePedidoActivoException.class,
+                                PedidoEstadoNoValidoException.class})
     public ResponseEntity<Object> BadRequestExceptionHandler(RuntimeException ex){
         ApiException apiException = new ApiException(
                 ex.getMessage(),

@@ -1,5 +1,7 @@
 package com.pragma.plazoletamicroservice.domain.usecase;
 
+import com.pragma.plazoletamicroservice.domain.exceptions.CodigoIncorrectoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.PedidoEstadoNoValidoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PedidoNoExisteException;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IMensajeriaServicePort;
@@ -79,21 +81,33 @@ public class PedidoUseCase implements IPedidoServicePort {
             if(!pedidoPersistencePort.validadRestaurantePedido(idRestaurante,idPedido)){
                    throw new PedidoRestauranteDiferenteException("El pedido "+idPedido+Constantes.PEDIDOS_DIFERENTES_RESTAURANTES);
             }
+            validarEstadoPedido(idPedido,Constantes.PEDIDO_PENDIENTE);
             validarPedido(idPedido);
             pedidoPersistencePort.actualizarPedido(idPedido,Constantes.PEDIDO_EN_PREPARACION,idEmpleado);
         }
     }
 
     @Override
-    public Integer marcarPedido(Long id) {
+    public Integer marcarPedidoListo(Long id) {
         validarRolEmpleado();
         validarPedido(id);
+        validarEstadoPedido(id, Constantes.PEDIDO_EN_PREPARACION);
         pedidoPersistencePort.actualizarPedido(id,"Listo");
         return mensajeriaServicePort.enviarMensaje();
+    }
+    private void validarCodigoVerificacion(Long idPedido, Integer codigo){
+        if(!pedidoPersistencePort.pedidoVerificarCodigo(idPedido, codigo)){
+            throw new CodigoIncorrectoException("Codigo de verificacion incorrecto");
+        }
     }
     private void validarPedido(Long id){
         if(!pedidoPersistencePort.pedidoExiste(id)){
            throw new PedidoNoExisteException(Constantes.PEDIDO_NO_REGISTRADO);
+        }
+    }
+    private void validarEstadoPedido(Long idPedido, String estado){
+        if(!pedidoPersistencePort.validadEstadoPedido(idPedido, estado)){
+            throw new PedidoEstadoNoValidoException("Estado no valido");
         }
     }
     private void validarRolEmpleado(){

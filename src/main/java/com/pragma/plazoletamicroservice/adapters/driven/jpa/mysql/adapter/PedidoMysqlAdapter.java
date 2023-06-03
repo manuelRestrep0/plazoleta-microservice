@@ -48,7 +48,7 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
         Page<Pedido> pagina;
         do{
             Pageable pageable = PageRequest.of(numeroPagina,elementos);
-            pagina = pedidoRepository.findAllByIdRestaurante_IdAndAndEstado(id,estado,pageable).map(pedidoEntityMapper::toPedido);
+            pagina = pedidoRepository.findAllByIdRestaurante_IdAndEstado(id,estado,pageable).map(pedidoEntityMapper::toPedido);
             paginas.add(pagina);
             numeroPagina++;
         } while (pagina.hasNext());
@@ -64,6 +64,11 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
     @Override
     public boolean pedidoExiste(Long id) {
         return pedidoRepository.existsById(id);
+    }
+
+    @Override
+    public boolean pedidoVerificarCodigo(Long id, Integer codigo) {
+        return pedidoRepository.existsByIdAndCodigoVerificacion(id,codigo);
     }
 
     @Override
@@ -89,5 +94,10 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
     public boolean validadRestaurantePedido(Long idRestaurante, Long idPedido) {
         Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
         return pedido.filter(pedidoEntity -> idRestaurante.equals(pedidoEntity.getIdRestaurante().getId())).isPresent();
+    }
+
+    @Override
+    public boolean validadEstadoPedido(Long id, String estado) {
+        return pedidoRepository.existsByIdAndEstado(id,estado);
     }
 }
