@@ -79,12 +79,20 @@ public class PedidoUseCase implements IPedidoServicePort {
         for (Long idPedido:
              pedidos) {
             if(!pedidoPersistencePort.validadRestaurantePedido(idRestaurante,idPedido)){
-                   throw new PedidoRestauranteDiferenteException("El pedido "+idPedido+Constantes.PEDIDOS_DIFERENTES_RESTAURANTES);
+                   throw new PedidoRestauranteDiferenteException("El pedido "+idPedido+" "+Constantes.PEDIDOS_DIFERENTES_RESTAURANTES);
             }
             validarEstadoPedido(idPedido,Constantes.PEDIDO_PENDIENTE);
             validarPedido(idPedido);
             pedidoPersistencePort.actualizarPedido(idPedido,Constantes.PEDIDO_EN_PREPARACION,idEmpleado);
         }
+    }
+
+    @Override
+    public void marcarPedidoEntregado(Long id, Integer codigo) {
+        validarRolEmpleado();
+        validarEstadoPedido(id,Constantes.PEDIDO_LISTO);
+        validarCodigoVerificacion(id,codigo);
+        pedidoPersistencePort.actualizarPedido(id,Constantes.PEDIDO_ENTREGADO);
     }
 
     @Override

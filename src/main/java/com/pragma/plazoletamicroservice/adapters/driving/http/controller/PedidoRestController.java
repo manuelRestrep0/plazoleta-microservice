@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,11 +74,18 @@ public class PedidoRestController {
     }
 
     @PatchMapping("/pedido-listo/{id}")
-    public ResponseEntity<Map<String,String>> marcarPedidoListo(@RequestParam("id") Long id){
+    public ResponseEntity<Map<String,String>> marcarPedidoListo(@PathVariable("id") Long id){
         pedidoHandler.marcarPedidoListo(id);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,"Pedido Listo.")
         );
+    }
+    @PatchMapping("/pedido-entregado")
+    public ResponseEntity<Map<String, String>> marcarPerdidoEntregado(@RequestParam("idPedido") Long idPedido, @RequestParam("codigo") Integer codigo){
+        pedidoHandler.marcarPedidoEntregado(idPedido, codigo);
+        return ResponseEntity.status(HttpStatus.OK).body((
+                Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,"Pedido entregado")
+                ));
     }
 
 }

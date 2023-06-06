@@ -15,4 +15,5 @@ public interface IPedidoHandler {
     void asignarPedidoEmpleado(AsignarPedidoRequestDto pedidos);
 
     Integer marcarPedidoListo(Long id);
+    void marcarPedidoEntregado(Long id, Integer codigo);
 }
