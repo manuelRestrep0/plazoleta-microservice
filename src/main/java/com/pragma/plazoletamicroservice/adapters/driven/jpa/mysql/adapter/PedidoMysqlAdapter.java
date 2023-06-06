@@ -100,4 +100,19 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
     public boolean validadEstadoPedido(Long id, String estado) {
         return pedidoRepository.existsByIdAndEstado(id,estado);
     }
+
+    @Override
+    public boolean validarPedidoUsuario(Long id, Long idCliente) {
+        return pedidoRepository.existsByIdAndIdCliente(id, idCliente);
+    }
+
+    @Override
+    public String obtenerEstadoPedido(Long id) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(id);
+        String estado = "";
+        if(pedido.isPresent()){
+            estado = pedido.get().getEstado();
+        }
+        return estado;
+    }
 }

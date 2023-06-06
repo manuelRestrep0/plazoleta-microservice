@@ -45,12 +45,17 @@ public class PedidoHandlerImpl implements IPedidoHandler {
     }
 
     @Override
-    public Integer marcarPedidoListo(Long id) {
-        return pedidoServicePort.marcarPedidoListo(id);
+    public void marcarPedidoListo(Long id) {
+        pedidoServicePort.marcarPedidoListo(id);
     }
 
     @Override
     public void marcarPedidoEntregado(Long id, Integer codigo) {
         pedidoServicePort.marcarPedidoEntregado(id, codigo);
+    }
+
+    @Override
+    public String cancelarPedido(Long id) {
+        return pedidoServicePort.cancelarPedido(id);
     }
 }

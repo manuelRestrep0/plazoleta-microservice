@@ -60,7 +60,6 @@ public class PedidoUseCase implements IPedidoServicePort {
 
         pedidoPersistencePort.guardarPedido(pedido,platos);
     }
-
     @Override
     public List<List<Pedido>> obtenerPedidosPorEstado(Long idRestaurante, String estado, int elementos) {
         validarRolEmpleado();
@@ -71,7 +70,6 @@ public class PedidoUseCase implements IPedidoServicePort {
 
         return respuesta;
     }
-
     @Override
     public void asignarPedido(Long idRestaurante, List<Long> pedidos) {
         validarRolEmpleado();
@@ -86,7 +84,6 @@ public class PedidoUseCase implements IPedidoServicePort {
             pedidoPersistencePort.actualizarPedido(idPedido,Constantes.PEDIDO_EN_PREPARACION,idEmpleado);
         }
     }
-
     @Override
     public void marcarPedidoEntregado(Long id, Integer codigo) {
         validarRolEmpleado();
@@ -94,15 +91,30 @@ public class PedidoUseCase implements IPedidoServicePort {
         validarCodigoVerificacion(id,codigo);
         pedidoPersistencePort.actualizarPedido(id,Constantes.PEDIDO_ENTREGADO);
     }
-
     @Override
-    public Integer marcarPedidoListo(Long id) {
+    public void marcarPedidoListo(Long id) {
         validarRolEmpleado();
         validarPedido(id);
         validarEstadoPedido(id, Constantes.PEDIDO_EN_PREPARACION);
         pedidoPersistencePort.actualizarPedido(id,"Listo");
-        return mensajeriaServicePort.enviarMensaje();
+        mensajeriaServicePort.enviarMensaje();
     }
+
+    @Override
+    public String cancelarPedido(Long id) {
+        Long idCliente = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
+        if(pedidoPersistencePort.validarPedidoUsuario(id,idCliente)){
+            String estado = pedidoPersistencePort.obtenerEstadoPedido(id);
+            if(estado.equals(Constantes.PEDIDO_PENDIENTE)){
+                pedidoPersistencePort.actualizarPedido(id,Constantes.PEDIDO_CANCELADO);
+                return "Pedido cancelado";
+            }else{
+                return "El pedido no se puede cancelar porque se encuentra en estado: "+estado;
+            }
+        }
+        return "El pedido que intenta cancelar no es suyo";
+    }
+
     private void validarCodigoVerificacion(Long idPedido, Integer codigo){
         if(!pedidoPersistencePort.pedidoVerificarCodigo(idPedido, codigo)){
             throw new CodigoIncorrectoException("Codigo de verificacion incorrecto");
@@ -134,5 +146,4 @@ public class PedidoUseCase implements IPedidoServicePort {
         }
         return plato.get();
     }
-
 }

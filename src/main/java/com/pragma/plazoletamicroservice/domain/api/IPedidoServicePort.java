@@ -11,5 +11,6 @@ public interface IPedidoServicePort {
     List<List<Pedido>> obtenerPedidosPorEstado(Long idRestaurante,String estado, int elementos);
     void asignarPedido(Long idRestaurante, List<Long> pedidos);
     void marcarPedidoEntregado(Long id, Integer codigo);
-    Integer marcarPedidoListo(Long id);
+    void marcarPedidoListo(Long id);
+    String cancelarPedido(Long id);
 }

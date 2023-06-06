@@ -87,5 +87,12 @@ public class PedidoRestController {
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,"Pedido entregado")
                 ));
     }
+    @PatchMapping("/cancelar-pedido")
+    public ResponseEntity<Map<String, String>> cancelarPedido(@RequestParam("idPedido") Long idPedido){
+        String respuesta = pedidoHandler.cancelarPedido(idPedido);
+        return ResponseEntity.status(HttpStatus.OK).body((
+                Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,respuesta)
+        ));
+    }
 
 }
