@@ -94,9 +94,83 @@ Ejemplo de la peticion:
 ```
 
 
-### /restaurante/listar/{elementos}
+### /restaurante/listar/{elementos}   GET
 
 Este endpoint trae una lista de paginas de los restaurantes disponibles con su nombre y url. se le debe indicar el numero de elementos
 por pagina.
+
+### /plato/listar   GET
+
+Este endpoint trae un lista de paginas de los platos de un restaurante. Se le debe indicar el nombre de la categoria del plato, el id del restaurante
+y los elementos por pagina en el url. 
+
+La categoria esta por defecto en all, para traer todos los platos indiferentemente de su categoria. Por lo que, si no se indica categoria, se 
+traen todos los platos del restaurante.
+
+Un ejemplo de la peticio es: 
+
+```java {.highlight .highlight-source-java .bg-black}
+/plato/listar?nombreCategoria=all&restaurante=11&elementos=4
+```
+
+### /pedido/generar-pedido   POST
+
+Para generar un nuevo pedido debes estar logeado como cliente para verificar que no tengas pedidos activos.
+El pedido recibe un body donde se le indica el id del restaurante al que se va a hacer el pedido y 
+una lista de platos donde se indica el id del plato y la cantidad.
+
+Ejemplo de la peticion: 
+
+```java {.highlight .highlight-source-java .bg-black}
+{
+  "idRestaurante": 7,
+  "platos": [
+    {
+      "idPlato": 11,
+      "cantidad": 1
+    },{
+      "idPlato": 12,
+      "cantidad": 1
+    },{
+      "idPlato": 13,
+      "cantidad": 1
+    },
+  ]
+}
+
+```
+
+### /pedido/obtener-pedidos  GET
+
+En este endpoint se obtienen una lista de paginas de los pedidos filtrado por estado. 
+En el url debes especificar el id del restaurante, el estado y la cantidad de elementos por pagina.
+
+Ejemplo de la peticion:
+```java {.highlight .highlight-source-java .bg-black}
+/pedido/obtener-pedidos?idRestaurante=11&estado=Pendiente&elementos=5'
+```
+
+### /pedido/asignar-pedido  PATCH
+
+Para utilizar este endpoint debes estar logeado como empleado.
+
+El endpoint recibe un body que contiene el id del restaurante y el id de los pedidos que se va a asignar el empleado que 
+se encuentre logeado.
+Los pedidos deben ser del mismo restaurante, si no coincide que todos los pedidos tengan el mismo restaurante se lanza un error.
+
+Ejemplo de la peticion:
+
+```java {.highlight .highlight-source-java .bg-black}
+{
+  "idRestaurante": 7,
+  "pedidos": [
+    7,
+    8,
+    9,
+    10
+  ]
+}
+```
+
 
 
