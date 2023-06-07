@@ -1,5 +1,6 @@
 package com.pragma.plazoletamicroservice.domain.usecase;
 
+import com.pragma.plazoletamicroservice.domain.api.ITrazabilidadServicePort;
 import com.pragma.plazoletamicroservice.domain.exceptions.CodigoIncorrectoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PedidoEstadoNoValidoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PedidoNoExisteException;
@@ -8,16 +9,14 @@ import com.pragma.plazoletamicroservice.domain.api.IMensajeriaServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
 import com.pragma.plazoletamicroservice.domain.exceptions.ClientePedidoActivoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PedidoRestauranteDiferenteException;
-import com.pragma.plazoletamicroservice.domain.exceptions.PlatoNoEncontradoException;
-import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
-import com.pragma.plazoletamicroservice.domain.model.Plato;
-import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import com.pragma.plazoletamicroservice.domain.spi.IPedidoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
+import com.pragma.plazoletamicroservice.domain.utilidades.BuilderLogPedido;
 import com.pragma.plazoletamicroservice.domain.utilidades.Constantes;
+import com.pragma.plazoletamicroservice.domain.utilidades.ObtenerObjetoFromOptional;
 import com.pragma.plazoletamicroservice.domain.utilidades.Token;
 import com.pragma.plazoletamicroservice.domain.utilidades.ValidacionPermisos;
 import org.springframework.data.domain.Page;
@@ -25,7 +24,6 @@ import org.springframework.data.domain.Page;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static java.lang.Long.parseLong;
 
@@ -35,15 +33,16 @@ public class PedidoUseCase implements IPedidoServicePort {
     private final IPlatoPersistencePort platoPersistencePort;
     private final IFeignServicePort feignServicePort;
     private final IMensajeriaServicePort mensajeriaServicePort;
+    private final ITrazabilidadServicePort trazabilidadServicePort;
 
-    public PedidoUseCase(IPedidoPersistencePort pedidoPersistencePort, IRestaurantePersistencePort restaurantePersistencePort, IPlatoPersistencePort platoPersistencePort, IFeignServicePort feignServicePort, IMensajeriaServicePort mensajeriaServicePort) {
+    public PedidoUseCase(IPedidoPersistencePort pedidoPersistencePort, IRestaurantePersistencePort restaurantePersistencePort, IPlatoPersistencePort platoPersistencePort, IFeignServicePort feignServicePort, IMensajeriaServicePort mensajeriaServicePort, ITrazabilidadServicePort trazabilidadServicePort) {
         this.pedidoPersistencePort = pedidoPersistencePort;
         this.restaurantePersistencePort = restaurantePersistencePort;
         this.platoPersistencePort = platoPersistencePort;
         this.feignServicePort = feignServicePort;
         this.mensajeriaServicePort = mensajeriaServicePort;
+        this.trazabilidadServicePort = trazabilidadServicePort;
     }
-
     @Override
     public void generarPedido(Long idRestaurante, List<PedidoPlato> platos) {
         Long idCliente = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
@@ -51,11 +50,15 @@ public class PedidoUseCase implements IPedidoServicePort {
            throw new ClientePedidoActivoException(Constantes.CLIENTE_PEDIDO_ACTIVO);
         }
         Pedido pedido = new Pedido();
-        pedido.setIdRestaurante(obtenerRestaurante(restaurantePersistencePort.obtenerRestaurante(idRestaurante)));
+        pedido.setIdRestaurante(ObtenerObjetoFromOptional.obtenerRestaurante(restaurantePersistencePort.obtenerRestaurante(idRestaurante)));
         pedido.setIdCliente(idCliente);
         pedido.setFecha(LocalDate.now());
         pedido.setEstado(Constantes.PEDIDO_PENDIENTE);
-        platos.forEach(plato -> plato.setIdPlato(obtenerPlato(platoPersistencePort.obtenerPlato(plato.getIdPlato().getId()))));
+        platos.forEach(plato ->
+                plato.setIdPlato(
+                        ObtenerObjetoFromOptional.obtenerPlato(
+                                platoPersistencePort.obtenerPlato(
+                                        plato.getIdPlato().getId()))));
         platos.forEach(plato -> plato.setIdPedido(pedido));
 
         pedidoPersistencePort.guardarPedido(pedido,platos);
@@ -82,6 +85,15 @@ public class PedidoUseCase implements IPedidoServicePort {
             validarEstadoPedido(idPedido,Constantes.PEDIDO_PENDIENTE);
             validarPedido(idPedido);
             pedidoPersistencePort.actualizarPedido(idPedido,Constantes.PEDIDO_EN_PREPARACION,idEmpleado);
+
+            BuilderLogPedido logPedido = new BuilderLogPedido();
+            Long idCliente = pedidoPersistencePort.obtenerIdClienteFromPedido(idPedido);
+
+            logPedido.infoPedido(idPedido,Constantes.PEDIDO_PENDIENTE,Constantes.PEDIDO_EN_PREPARACION);
+            logPedido.infoCliente(idCliente, feignServicePort.obtenerCorreoFromUsuario(idCliente));
+            logPedido.infoEmpleado(idEmpleado, feignServicePort.obtenerCorreoFromUsuario(idEmpleado));
+
+            trazabilidadServicePort.generarLog(logPedido);
         }
     }
     @Override
@@ -90,16 +102,34 @@ public class PedidoUseCase implements IPedidoServicePort {
         validarEstadoPedido(id,Constantes.PEDIDO_LISTO);
         validarCodigoVerificacion(id,codigo);
         pedidoPersistencePort.actualizarPedido(id,Constantes.PEDIDO_ENTREGADO);
+
+        Long idEmpleado = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
+        Long idCliente = pedidoPersistencePort.obtenerIdClienteFromPedido(id);
+
+        BuilderLogPedido logPedido = new BuilderLogPedido();
+        logPedido.infoPedido(id,Constantes.PEDIDO_LISTO,Constantes.PEDIDO_ENTREGADO);
+        logPedido.infoCliente(idCliente, feignServicePort.obtenerCorreoFromUsuario(idCliente));
+        logPedido.infoEmpleado(idEmpleado, feignServicePort.obtenerCorreoFromUsuario(idEmpleado));
+        trazabilidadServicePort.generarLog(logPedido);
     }
     @Override
     public void marcarPedidoListo(Long id) {
         validarRolEmpleado();
         validarPedido(id);
         validarEstadoPedido(id, Constantes.PEDIDO_EN_PREPARACION);
+        Integer codigo = mensajeriaServicePort.enviarMensaje();
         pedidoPersistencePort.actualizarPedido(id,"Listo");
-        mensajeriaServicePort.enviarMensaje();
-    }
+        pedidoPersistencePort.actualizarPedido(id,codigo);
 
+        Long idEmpleado = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
+        Long idCliente = pedidoPersistencePort.obtenerIdClienteFromPedido(id);
+
+        BuilderLogPedido logPedido = new BuilderLogPedido();
+        logPedido.infoPedido(id,Constantes.PEDIDO_EN_PREPARACION,Constantes.PEDIDO_LISTO);
+        logPedido.infoCliente(idCliente, feignServicePort.obtenerCorreoFromUsuario(idCliente));
+        logPedido.infoEmpleado(idEmpleado, feignServicePort.obtenerCorreoFromUsuario(idEmpleado));
+        trazabilidadServicePort.generarLog(logPedido);
+    }
     @Override
     public String cancelarPedido(Long id) {
         Long idCliente = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
@@ -107,6 +137,14 @@ public class PedidoUseCase implements IPedidoServicePort {
             String estado = pedidoPersistencePort.obtenerEstadoPedido(id);
             if(estado.equals(Constantes.PEDIDO_PENDIENTE)){
                 pedidoPersistencePort.actualizarPedido(id,Constantes.PEDIDO_CANCELADO);
+
+                Long idEmpleado = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
+                BuilderLogPedido logPedido = new BuilderLogPedido();
+                logPedido.infoPedido(id,Constantes.PEDIDO_EN_PREPARACION,Constantes.PEDIDO_LISTO);
+                logPedido.infoCliente(idCliente, feignServicePort.obtenerCorreoFromUsuario(idCliente));
+                logPedido.infoEmpleado(idEmpleado, feignServicePort.obtenerCorreoFromUsuario(idEmpleado));
+                trazabilidadServicePort.generarLog(logPedido);
+
                 return "Pedido cancelado";
             }else{
                 return "El pedido no se puede cancelar porque se encuentra en estado: "+estado;
@@ -114,7 +152,6 @@ public class PedidoUseCase implements IPedidoServicePort {
         }
         return "El pedido que intenta cancelar no es suyo";
     }
-
     private void validarCodigoVerificacion(Long idPedido, Integer codigo){
         if(!pedidoPersistencePort.pedidoVerificarCodigo(idPedido, codigo)){
             throw new CodigoIncorrectoException("Codigo de verificacion incorrecto");
@@ -133,17 +170,5 @@ public class PedidoUseCase implements IPedidoServicePort {
     private void validarRolEmpleado(){
         String rolUsuarioActual = feignServicePort.obtenerRolFromToken(Token.getToken());
         ValidacionPermisos.validarRol(rolUsuarioActual,Constantes.ROLE_EMPLEADO);
-    }
-    private Restaurante obtenerRestaurante(Optional<Restaurante> restaurante){
-        if (restaurante.isEmpty()){
-            throw new RestauranteNoEncontradoException(Constantes.RESTAURANTE_NO_ENCONTRADO);
-        }
-        return restaurante.get();
-    }
-    private Plato obtenerPlato(Optional<Plato> plato){
-        if(plato.isEmpty()){
-            throw new PlatoNoEncontradoException(Constantes.PLATO_NO_REGISTRADO);
-        }
-        return plato.get();
     }
 }

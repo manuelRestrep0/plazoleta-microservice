@@ -15,12 +15,12 @@ public interface UsuarioFeignClient {
 
     @GetMapping(value = "/usuario/validar-propietario/{id}")
     Boolean validarPropietario(@PathVariable("id") Long id);
-
     @GetMapping(value = "/auth/obtener-id/{token}")
     String idUsuario(@PathVariable("token") String token);
     @GetMapping(value = "/auth/obtener-rol/{token}")
     String rolUsuario(@PathVariable("token") String token);
-
     @PostMapping(value = "/auth/login")
     ResponseEntity<JwtResponseDto> login(@RequestBody AuthRequestDto authRequestDto);
+    @GetMapping(value = "/obtener-correo-usuario/{id}")
+    String obtenerCorreoFromUsuario(@PathVariable("id") Long id);
 }

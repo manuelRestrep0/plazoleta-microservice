@@ -1,0 +1,14 @@
+package com.pragma.plazoletamicroservice.adapters.driving.feign.trazabilidad;
+
+import com.pragma.plazoletamicroservice.configuration.FeignClientConfig;
+import com.pragma.plazoletamicroservice.domain.model.LogPedido;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+
+@FeignClient(name = "TRAZABILIDAD-MICROSERVICIO-API", url = "http://localhost:8091", configuration = FeignClientConfig.class)
+public interface TrazabilidadFeignClient {
+
+    @PostMapping("/logs/pedidos/registro")
+    void generarLog(LogPedido logPedido);
+
+}

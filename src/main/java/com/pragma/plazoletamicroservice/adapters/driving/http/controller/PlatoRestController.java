@@ -5,11 +5,14 @@ import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PlatoH
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PlatoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.PlatoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IPlatoHandler;
+import com.pragma.plazoletamicroservice.adapters.driving.http.utilidades.JwtUtilidades;
 import com.pragma.plazoletamicroservice.configuration.Constants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,10 +32,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/plato")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "jwt")
 public class PlatoRestController {
 
     private final IPlatoHandler platoHandler;
-
+    private final HttpServletRequest request;
+    String AUTH = "Authorization";
 
     @Operation(summary = "Agregar un nuevo plato",
             responses = {
@@ -44,6 +49,8 @@ public class PlatoRestController {
     @PostMapping("/agregar-plato")
     public ResponseEntity<Map<String,String>> crearPlato(@Valid @RequestBody PlatoRequestDto platoRequestDto){
         //ROL PROPIETARIO
+        String token = request.getHeader(AUTH);
+        JwtUtilidades.extraerToken(token);
         platoHandler.crearPlato(platoRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,Constants.PLATO_CREADO)
@@ -59,6 +66,8 @@ public class PlatoRestController {
             })
     @PatchMapping ("/modificar-plato")
     public ResponseEntity<Map<String,String>> modificarPlato(@Valid @RequestBody ModificarPlatoRequestDto modificarPlatoRequestDto){
+        String token = request.getHeader(AUTH);
+        JwtUtilidades.extraerToken(token);
         platoHandler.modificarPlato(modificarPlatoRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,Constants.PLATO_MODIFICADO)
@@ -73,6 +82,8 @@ public class PlatoRestController {
             })
     @PatchMapping("/disponibilidad")
     public ResponseEntity<Map<String,String>> habilitacionPlato(@Valid @RequestBody PlatoHabilitacionRequestDto platoHabilitacionRequestDto){
+        String token = request.getHeader(AUTH);
+        JwtUtilidades.extraerToken(token);
         platoHandler.habilitacionPlato(platoHabilitacionRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,Constants.PLATO_MODIFICADO)

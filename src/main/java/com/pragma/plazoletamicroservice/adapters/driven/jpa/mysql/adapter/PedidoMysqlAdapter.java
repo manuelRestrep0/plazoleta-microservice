@@ -35,12 +35,10 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
         platosEntity.forEach(pedidoPlatoEntity -> pedidoPlatoEntity.setIdPedido(pedidoRepository.findById(pedidoEntity.getId()).get()));
         pedidoPlatoRepository.saveAll(platosEntity);
     }
-
     @Override
     public Boolean verificarPedidoCliente(Long idCliente) {
         return pedidoRepository.existsByIdCliente(idCliente);
     }
-
     @Override
     public List<Page<Pedido>> obtenerPedidos(Long id, String estado, int elementos) {
         List<Page<Pedido>> paginas = new ArrayList<>();
@@ -54,23 +52,14 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
         } while (pagina.hasNext());
         return paginas;
     }
-
-    @Override
-    public Pedido obtenerPedido(Long id) {
-        Optional<PedidoEntity> pedido = pedidoRepository.findById(id);
-        return pedidoEntityMapper.toPedido(pedido.get());
-    }
-
     @Override
     public boolean pedidoExiste(Long id) {
         return pedidoRepository.existsById(id);
     }
-
     @Override
     public boolean pedidoVerificarCodigo(Long id, Integer codigo) {
         return pedidoRepository.existsByIdAndCodigoVerificacion(id,codigo);
     }
-
     @Override
     public void actualizarPedido(Long idPedido, String estado, Long idChef) {
         Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
@@ -91,21 +80,27 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
         }
     }
     @Override
+    public void actualizarPedido(Long idPedido, Integer codigoVerificacion) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        if(pedido.isPresent()){
+            PedidoEntity pedidoEntity = pedido.get();
+            pedidoEntity.setCodigoVerificacion(codigoVerificacion);
+            pedidoRepository.save(pedidoEntity);
+        }
+    }
+    @Override
     public boolean validadRestaurantePedido(Long idRestaurante, Long idPedido) {
         Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
         return pedido.filter(pedidoEntity -> idRestaurante.equals(pedidoEntity.getIdRestaurante().getId())).isPresent();
     }
-
     @Override
     public boolean validadEstadoPedido(Long id, String estado) {
         return pedidoRepository.existsByIdAndEstado(id,estado);
     }
-
     @Override
     public boolean validarPedidoUsuario(Long id, Long idCliente) {
         return pedidoRepository.existsByIdAndIdCliente(id, idCliente);
     }
-
     @Override
     public String obtenerEstadoPedido(Long id) {
         Optional<PedidoEntity> pedido = pedidoRepository.findById(id);
@@ -114,5 +109,14 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
             estado = pedido.get().getEstado();
         }
         return estado;
+    }
+    @Override
+    public Long obtenerIdClienteFromPedido(Long idPedido) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        Long idCliente = null;
+        if(pedido.isPresent()){
+            idCliente = pedido.get().getIdCliente();
+        }
+        return idCliente;
     }
 }

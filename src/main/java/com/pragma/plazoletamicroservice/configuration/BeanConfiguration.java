@@ -18,17 +18,18 @@ import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFei
 import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFeignHandlerImp;
 import com.pragma.plazoletamicroservice.adapters.driving.feign.mensajeria.MensajeriaFeignClient;
 import com.pragma.plazoletamicroservice.adapters.driving.feign.mensajeria.MensajeriaFiegnHandlerImpl;
-import com.pragma.plazoletamicroservice.domain.api.IAuthServicePort;
+import com.pragma.plazoletamicroservice.adapters.driving.feign.trazabilidad.TrazabilidadFeignClient;
+import com.pragma.plazoletamicroservice.adapters.driving.feign.trazabilidad.TrazabilidadFeignHandlerImpl;
 import com.pragma.plazoletamicroservice.domain.api.IMensajeriaServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IRestauranteServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
+import com.pragma.plazoletamicroservice.domain.api.ITrazabilidadServicePort;
 import com.pragma.plazoletamicroservice.domain.spi.ICategoriaPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPedidoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
-import com.pragma.plazoletamicroservice.domain.usecase.AuthUseCase;
 import com.pragma.plazoletamicroservice.domain.usecase.PedidoUseCase;
 import com.pragma.plazoletamicroservice.domain.usecase.PlatoUseCase;
 import com.pragma.plazoletamicroservice.domain.usecase.RestauranteUseCase;
@@ -52,14 +53,11 @@ public class BeanConfiguration {
     private final IPedidoPlatoRepository pedidoPlatoRepository;
     private final IPedidoPlatoEntityMapper pedidoPlatoEntityMapper;
     private final MensajeriaFeignClient mensajeriaFeignClient;
+    private final TrazabilidadFeignClient trazabilidadFeignClient;
 
     @Bean
     public IRestauranteServicePort restauranteServicePort(){
         return new RestauranteUseCase(restaurantePersistencePort(), feignServicePort());
-    }
-    @Bean
-    public IAuthServicePort authServicePort(){
-        return new AuthUseCase();
     }
     @Bean
     public IFeignServicePort feignServicePort(){
@@ -83,7 +81,7 @@ public class BeanConfiguration {
     }
     @Bean
     public IPedidoServicePort pedidoServicePort(){
-        return new PedidoUseCase(pedidoPersistencePort(),restaurantePersistencePort(), platoPersistencePort(), feignServicePort(), mensajeriaServicePort());
+        return new PedidoUseCase(pedidoPersistencePort(),restaurantePersistencePort(), platoPersistencePort(), feignServicePort(), mensajeriaServicePort(), trazabilidadServicePort());
     }
     @Bean
     public IPedidoPersistencePort pedidoPersistencePort(){
@@ -92,5 +90,9 @@ public class BeanConfiguration {
     @Bean
     public IMensajeriaServicePort mensajeriaServicePort(){
         return new MensajeriaFiegnHandlerImpl(mensajeriaFeignClient);
+    }
+    @Bean
+    public ITrazabilidadServicePort trazabilidadServicePort(){
+        return new TrazabilidadFeignHandlerImpl(trazabilidadFeignClient);
     }
 }
