@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface IRestauranteRepository extends JpaRepository<RestauranteEntity,Long> {
-
-    Optional<RestauranteEntity> findRestauranteEntityByNit(String nit);
     Boolean existsByNit(String nit);
+    Optional<RestauranteEntity> findByIdPropietario(Long idPropietario);
+    Boolean existsByIdAndIdPropietario(Long idRestaurante, Long idPropietario);
 }

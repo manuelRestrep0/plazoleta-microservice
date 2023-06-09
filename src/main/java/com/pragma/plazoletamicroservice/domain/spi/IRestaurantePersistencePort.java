@@ -9,9 +9,8 @@ import java.util.Optional;
 public interface IRestaurantePersistencePort {
 
     void crearRestaurante(Restaurante restaurante);
-
     Optional<Restaurante> obtenerRestaurante(Long id);
-
     List<Page<Restaurante>> obtenerRestaurantes(int elementos);
     Boolean validarExistenciaRestaurante(String nit);
+    Boolean validarExistenciaRestaurante(Long idRestaurante, Long idPropietario);
 }

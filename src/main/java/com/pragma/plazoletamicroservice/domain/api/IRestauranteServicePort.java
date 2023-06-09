@@ -9,4 +9,5 @@ public interface IRestauranteServicePort {
 
     void crearRestaurante(Restaurante restaurante);
     List<Page<Restaurante>> obtenerRestaurantes(int elementos);
+    boolean registrarEmpleado(Long idEmpleado, Long idPropietario, Long idRestaurante);
 }

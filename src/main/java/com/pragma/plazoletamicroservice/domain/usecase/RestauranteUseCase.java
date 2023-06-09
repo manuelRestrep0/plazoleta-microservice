@@ -5,6 +5,7 @@ import com.pragma.plazoletamicroservice.domain.api.IRestauranteServicePort;
 import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoPropietarioException;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
+import com.pragma.plazoletamicroservice.domain.spi.IEmplRestPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
 import com.pragma.plazoletamicroservice.domain.utilidades.Constantes;
 import com.pragma.plazoletamicroservice.domain.utilidades.Token;
@@ -15,10 +16,12 @@ import java.util.List;
 
 public class RestauranteUseCase implements IRestauranteServicePort {
     private final IRestaurantePersistencePort restaurantePersistencePort;
+    private final IEmplRestPersistencePort emplRestPersistencePort;
     private final IFeignServicePort feignServicePort;
 
-    public RestauranteUseCase(IRestaurantePersistencePort restaurantePersistencePort, IFeignServicePort feignServicePort) {
+    public RestauranteUseCase(IRestaurantePersistencePort restaurantePersistencePort, IEmplRestPersistencePort emplRestPersistencePort, IFeignServicePort feignServicePort) {
         this.restaurantePersistencePort = restaurantePersistencePort;
+        this.emplRestPersistencePort = emplRestPersistencePort;
         this.feignServicePort = feignServicePort;
     }
     @Override
@@ -36,6 +39,14 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     @Override
     public List<Page<Restaurante>> obtenerRestaurantes(int elementos) {
         return restaurantePersistencePort.obtenerRestaurantes(elementos);
+    }
+    @Override
+    public boolean registrarEmpleado(Long idEmpleado, Long idPropietario, Long idRestaurante) {
+        if(!restaurantePersistencePort.validarExistenciaRestaurante(idRestaurante,idPropietario)){
+            return false;
+        }
+        emplRestPersistencePort.guardarEmpleadoRestaurante(idEmpleado,idRestaurante);
+        return true;
     }
     private void validarExistenciaRestaurante(String nit){
         if(Boolean.TRUE.equals(restaurantePersistencePort.validarExistenciaRestaurante(nit))){

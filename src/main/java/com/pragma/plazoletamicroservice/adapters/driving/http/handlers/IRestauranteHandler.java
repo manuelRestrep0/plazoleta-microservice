@@ -8,6 +8,6 @@ import java.util.List;
 public interface IRestauranteHandler {
 
     void crearRestaurante(RestauranteRequestDto restauranteRequestDto);
-
     List<List<RestauranteResponseDto>> obtenerRestaurantes(int elementos);
+    boolean registrarEmpleado(Long idEmpleado, Long idPropietario, Long idRestaurante);
 }

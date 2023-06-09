@@ -46,10 +46,13 @@ public class RestauranteMysqlAdapter implements IRestaurantePersistencePort {
 
         return paginas;
     }
-
     @Override
     public Boolean validarExistenciaRestaurante(String nit) {
         return restauranteRepository.existsByNit(nit);
+    }
+    @Override
+    public Boolean validarExistenciaRestaurante(Long idRestaurante, Long idPropietario) {
+        return restauranteRepository.existsByIdAndIdPropietario(idRestaurante,idPropietario);
     }
 
 }

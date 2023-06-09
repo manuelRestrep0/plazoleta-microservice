@@ -33,4 +33,9 @@ public class RestauranteHandlerImpl implements IRestauranteHandler {
         restaurantes.forEach(restaurantePage -> respuesta.add(restaurantePage.map(restauranteResponseMapper::toResponse).getContent()));
         return respuesta;
     }
+
+    @Override
+    public boolean registrarEmpleado(Long idEmpleado, Long idPropietario, Long idRestaurante) {
+        return restauranteServicePort.registrarEmpleado(idEmpleado,idPropietario,idRestaurante);
+    }
 }

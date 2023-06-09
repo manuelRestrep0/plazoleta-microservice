@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
@@ -71,6 +72,10 @@ public class RestauranteRestController {
     public ResponseEntity<String> pruebaId(@PathVariable("token") String token){
         String response = usuarioFeignClient.idUsuario(token);
         return ResponseEntity.ok().body(response);
+    }
+    @PostMapping("/registrar-empleado-restaurante")
+    public boolean registrarEmpleado(@RequestParam("idEmpleado")Long idEmpleado, @RequestParam("idPropietario")Long idPropieratio, @RequestParam("idRestaurante")Long idRestaurante){
+        return restauranteHandler.registrarEmpleado(idEmpleado, idPropieratio, idRestaurante);
     }
 
 }
