@@ -138,11 +138,9 @@ public class PedidoUseCase implements IPedidoServicePort {
             if(estado.equals(Constantes.PEDIDO_PENDIENTE)){
                 pedidoPersistencePort.actualizarPedido(id,Constantes.PEDIDO_CANCELADO);
 
-                Long idEmpleado = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
                 BuilderLogPedido logPedido = new BuilderLogPedido();
-                logPedido.infoPedido(id,Constantes.PEDIDO_EN_PREPARACION,Constantes.PEDIDO_LISTO);
+                logPedido.infoPedido(id,Constantes.PEDIDO_EN_PREPARACION,Constantes.PEDIDO_CANCELADO);
                 logPedido.infoCliente(idCliente, feignServicePort.obtenerCorreoFromUsuario(idCliente));
-                logPedido.infoEmpleado(idEmpleado, feignServicePort.obtenerCorreoFromUsuario(idEmpleado));
                 trazabilidadServicePort.generarLog(logPedido);
 
                 return "Pedido cancelado";
@@ -151,6 +149,11 @@ public class PedidoUseCase implements IPedidoServicePort {
             }
         }
         return "El pedido que intenta cancelar no es suyo";
+    }
+    @Override
+    public String obtenerTiempoPedido(Long idPedido) {
+        Long minutos = trazabilidadServicePort.tiempoPedido(idPedido);
+        return String.format("%d minutos", minutos);
     }
     private void validarCodigoVerificacion(Long idPedido, Integer codigo){
         if(!pedidoPersistencePort.pedidoVerificarCodigo(idPedido, codigo)){

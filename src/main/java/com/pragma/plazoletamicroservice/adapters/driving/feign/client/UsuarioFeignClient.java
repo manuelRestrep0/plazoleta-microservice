@@ -21,6 +21,6 @@ public interface UsuarioFeignClient {
     String rolUsuario(@PathVariable("token") String token);
     @PostMapping(value = "/auth/login")
     ResponseEntity<JwtResponseDto> login(@RequestBody AuthRequestDto authRequestDto);
-    @GetMapping(value = "/obtener-correo-usuario/{id}")
+    @GetMapping(value = "usuario/obtener-correo-usuario/{id}")
     String obtenerCorreoFromUsuario(@PathVariable("id") Long id);
 }

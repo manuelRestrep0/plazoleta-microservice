@@ -12,4 +12,8 @@ public class TrazabilidadFeignHandlerImpl implements ITrazabilidadServicePort {
     public void generarLog(LogPedido logPedido) {
         trazabilidadFeignClient.generarLog(logPedido);
     }
+    @Override
+    public Long tiempoPedido(Long idPedido) {
+        return trazabilidadFeignClient.obtenerTiempoPedido(idPedido);
+    }
 }

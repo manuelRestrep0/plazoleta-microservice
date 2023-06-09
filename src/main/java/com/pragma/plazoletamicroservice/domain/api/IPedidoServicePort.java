@@ -13,4 +13,6 @@ public interface IPedidoServicePort {
     void marcarPedidoEntregado(Long id, Integer codigo);
     void marcarPedidoListo(Long id);
     String cancelarPedido(Long id);
+    String obtenerTiempoPedido(Long idPedido);
+
 }
