@@ -89,7 +89,7 @@ public class BeanConfiguration {
     }
     @Bean
     public IPedidoServicePort pedidoServicePort(){
-        return new PedidoUseCase(pedidoPersistencePort(),restaurantePersistencePort(), platoPersistencePort(), feignServicePort(), mensajeriaServicePort(), trazabilidadServicePort());
+        return new PedidoUseCase(pedidoPersistencePort(),restaurantePersistencePort(), platoPersistencePort(),emplRestPersistencePort(), feignServicePort(), mensajeriaServicePort(), trazabilidadServicePort());
     }
     @Bean
     public IPedidoPersistencePort pedidoPersistencePort(){

@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,7 +39,7 @@ public class PlatoRestController {
     private final HttpServletRequest request;
     String AUTH = "Authorization";
 
-    @Operation(summary = "Agregar un nuevo plato",
+    @Operation(summary = "Agregar un nuevo plato. Rol: PROPIETARIO",
             responses = {
                     @ApiResponse(responseCode = "201", description = "Plato registrado!",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
@@ -57,7 +57,7 @@ public class PlatoRestController {
         );
     }
 
-    @Operation(summary = "Modificar un plato",
+    @Operation(summary = "Modificar un plato. Rol: PROPIETARIO",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Plato modificado!",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
@@ -73,7 +73,7 @@ public class PlatoRestController {
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,Constants.PLATO_MODIFICADO)
         );
     }
-    @Operation(summary = "Cambiar disponibilidada de un plato",
+    @Operation(summary = "Cambiar disponibilidada de un plato. Rol: PROPIETARIO",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Plato modificado!",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
@@ -89,7 +89,7 @@ public class PlatoRestController {
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,Constants.PLATO_MODIFICADO)
         );
     }
-    @Operation(summary = "Listar platos de un restaurante",
+    @Operation(summary = "Listar platos de un restaurante. Rol: CLIENTE",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Platos devueltos",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
@@ -97,7 +97,10 @@ public class PlatoRestController {
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
             })
     @GetMapping("/listar")
-    public List<List<PlatoResponseDto>> obtenerPlatos(@RequestParam(defaultValue = "all")String nombreCategoria, @RequestParam("restaurante") Long restaurante, @RequestParam("elementos") int elementos){
-        return platoHandler.obtenerPlatos(nombreCategoria, restaurante, elementos);
+    public Page<PlatoResponseDto> obtenerPlatos(@RequestParam(defaultValue = "all")String nombreCategoria,
+                                                @RequestParam("restaurante") Long restaurante,
+                                                @RequestParam("elementos") int elementos,
+                                                @RequestParam("pagina") int pagina){
+        return platoHandler.obtenerPlatos(nombreCategoria, restaurante, elementos, pagina);
     }
 }

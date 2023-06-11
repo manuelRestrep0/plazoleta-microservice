@@ -11,8 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -31,20 +29,19 @@ public class PlatoMysqlAdapter implements IPlatoPersistencePort {
     }
 
     @Override
-    public List<Page<Plato>> obtenerPlatos(String nombre, Long id, int elementos) {
-        List<Page<Plato>> paginas = new ArrayList<>();
-        int numeroPagina = 0;
+    public Page<Plato> obtenerPlatos(String nombre, Long id, int elementos, int numeroPagina) {
         Page<Plato> pagina;
-        do{
-            Pageable pageable = PageRequest.of(numeroPagina,elementos, Sort.by("nombre"));
-            if(nombre.equals("all")){
-                pagina = platoRepository.findAllByIdRestaurante_Id(id,pageable).map(platoEntityMapper::toPlato);
-            } else {
-                pagina = platoRepository.findAllByIdCategoria_NombreAndIdRestaurante_Id(nombre,id,pageable).map(platoEntityMapper::toPlato);
-            }
-            paginas.add(pagina);
-            numeroPagina++;
-        } while (pagina.hasNext());
-        return paginas;
+        Pageable pageable = PageRequest.of(numeroPagina,elementos, Sort.by("nombre"));
+        if(nombre.equals("all")){
+            pagina = platoRepository.findAllByIdRestaurante_Id(id,pageable).map(platoEntityMapper::toPlato);
+        } else {
+            pagina = platoRepository.findAllByIdCategoria_NombreAndIdRestaurante_Id(nombre,id,pageable).map(platoEntityMapper::toPlato);
+        }
+        return pagina;
+    }
+
+    @Override
+    public Boolean verificarRestaurantePlato(Long idRestaurante, Long idPlato) {
+        return platoRepository.existsByIdAndIdRestaurante(idPlato,idRestaurante);
     }
 }

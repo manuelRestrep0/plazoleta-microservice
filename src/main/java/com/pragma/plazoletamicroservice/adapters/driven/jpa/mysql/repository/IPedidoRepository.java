@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IPedidoRepository extends JpaRepository<PedidoEntity,Long> {
@@ -15,4 +16,5 @@ public interface IPedidoRepository extends JpaRepository<PedidoEntity,Long> {
     boolean existsByIdAndCodigoVerificacion(Long id, Integer codigo);
     boolean existsByIdAndIdCliente(Long id, Long idCliente);
     Page<PedidoEntity> findAllByIdRestaurante_IdAndEstado(Long id, String estado, Pageable pageable);
+    List<PedidoEntity> findAllByIdRestaurante(Long idRestaurante);
 }

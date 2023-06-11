@@ -15,8 +15,6 @@ import com.pragma.plazoletamicroservice.domain.utilidades.Token;
 import com.pragma.plazoletamicroservice.domain.utilidades.ValidacionPermisos;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class PlatoUseCase implements IPlatoServicePort {
     private final IPlatoPersistencePort platoPersistencePort;
@@ -73,11 +71,8 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
 
     @Override
-    public List<List<Plato>> obtenerPlatos(String nombre, Long id, int elementos) {
-        List<Page<Plato>> platos = platoPersistencePort.obtenerPlatos(nombre, id, elementos);
-        List<List<Plato>> respuesta = new ArrayList<>();
-        platos.forEach(page -> respuesta.add(page.getContent()));
-        return respuesta;
+    public Page<Plato> obtenerPlatos(String nombre, Long id, int elementos, int numeroPagina) {
+        return  platoPersistencePort.obtenerPlatos(nombre, id, elementos, numeroPagina);
     }
 
     Plato validarPropietarioPlatoRestaurante(Long id){

@@ -12,7 +12,6 @@ import com.pragma.plazoletamicroservice.domain.utilidades.Token;
 import com.pragma.plazoletamicroservice.domain.utilidades.ValidacionPermisos;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 
 public class RestauranteUseCase implements IRestauranteServicePort {
     private final IRestaurantePersistencePort restaurantePersistencePort;
@@ -37,8 +36,8 @@ public class RestauranteUseCase implements IRestauranteServicePort {
         this.restaurantePersistencePort.crearRestaurante(restaurante);
     }
     @Override
-    public List<Page<Restaurante>> obtenerRestaurantes(int elementos) {
-        return restaurantePersistencePort.obtenerRestaurantes(elementos);
+    public Page<Restaurante> obtenerRestaurantes(int elementos, int pagina) {
+        return restaurantePersistencePort.obtenerRestaurantes(elementos, pagina);
     }
     @Override
     public boolean registrarEmpleado(Long idEmpleado, Long idPropietario, Long idRestaurante) {
@@ -47,6 +46,10 @@ public class RestauranteUseCase implements IRestauranteServicePort {
         }
         emplRestPersistencePort.guardarEmpleadoRestaurante(idEmpleado,idRestaurante);
         return true;
+    }
+    @Override
+    public boolean validarPropietarioRestaurante(Long idPropietario, Long idRestaurante) {
+        return restaurantePersistencePort.validarExistenciaRestaurante(idPropietario, idRestaurante);
     }
     private void validarExistenciaRestaurante(String nit){
         if(Boolean.TRUE.equals(restaurantePersistencePort.validarExistenciaRestaurante(nit))){

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class PedidoMysqlAdapter implements IPedidoPersistencePort {
@@ -40,17 +41,9 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
         return pedidoRepository.existsByIdCliente(idCliente);
     }
     @Override
-    public List<Page<Pedido>> obtenerPedidos(Long id, String estado, int elementos) {
-        List<Page<Pedido>> paginas = new ArrayList<>();
-        int numeroPagina = 0;
-        Page<Pedido> pagina;
-        do{
-            Pageable pageable = PageRequest.of(numeroPagina,elementos);
-            pagina = pedidoRepository.findAllByIdRestaurante_IdAndEstado(id,estado,pageable).map(pedidoEntityMapper::toPedido);
-            paginas.add(pagina);
-            numeroPagina++;
-        } while (pagina.hasNext());
-        return paginas;
+    public Page<Pedido> obtenerPedidos(Long id, String estado, int elementos, int numeroPagina) {
+        Pageable pageable = PageRequest.of(numeroPagina,elementos);
+        return pedidoRepository.findAllByIdRestaurante_IdAndEstado(id,estado,pageable).map(pedidoEntityMapper::toPedido);
     }
     @Override
     public boolean pedidoExiste(Long id) {
@@ -118,5 +111,20 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
             idCliente = pedido.get().getIdCliente();
         }
         return idCliente;
+    }
+
+    @Override
+    public Long obtenerIdRestauranteFromPedido(Long idPedido) {
+        Optional<PedidoEntity> pedido = pedidoRepository.findById(idPedido);
+        Long idRestaurante = null;
+        if(pedido.isPresent()){
+            idRestaurante = pedido.get().getIdRestaurante().getId();
+        }
+        return idRestaurante;
+    }
+
+    @Override
+    public List<Pedido> obtenerPedidosFromRestaurante(Long idRestaurante) {
+        return pedidoRepository.findAllByIdRestaurante(idRestaurante).stream().map(pedidoEntityMapper::toPedido).toList();
     }
 }
