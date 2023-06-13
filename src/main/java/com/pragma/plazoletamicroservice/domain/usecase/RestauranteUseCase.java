@@ -12,6 +12,8 @@ import com.pragma.plazoletamicroservice.domain.utilidades.Token;
 import com.pragma.plazoletamicroservice.domain.utilidades.ValidacionPermisos;
 import org.springframework.data.domain.Page;
 
+import static java.lang.Long.parseLong;
+
 
 public class RestauranteUseCase implements IRestauranteServicePort {
     private final IRestaurantePersistencePort restaurantePersistencePort;
@@ -26,7 +28,9 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     @Override
     public void crearRestaurante(Restaurante restaurante) {
         String rolUsuarioActual = feignServicePort.obtenerRolFromToken(Token.getToken());
-        ValidacionPermisos.validarRol(rolUsuarioActual, Constantes.ROLE_ADMINISTRADOR);
+        ValidacionPermisos.validarRol(rolUsuarioActual, Constantes.ROLE_PROPIETARIO);
+        Long idPropietario = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
+        restaurante.setIdPropietario(idPropietario);
 
         if(!feignServicePort.validarPropietario(restaurante.getIdPropietario())){
             throw new UsuarioNoPropietarioException(Constantes.USUARIO_NO_PROPIETARIO);
@@ -41,7 +45,7 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     }
     @Override
     public boolean registrarEmpleado(Long idEmpleado, Long idPropietario, Long idRestaurante) {
-        if(!restaurantePersistencePort.validarExistenciaRestaurante(idRestaurante,idPropietario)){
+        if(Boolean.FALSE.equals(restaurantePersistencePort.validarExistenciaRestaurante(idRestaurante,idPropietario))){
             return false;
         }
         emplRestPersistencePort.guardarEmpleadoRestaurante(idEmpleado,idRestaurante);

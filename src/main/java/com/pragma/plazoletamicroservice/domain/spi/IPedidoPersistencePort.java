@@ -1,14 +1,13 @@
 package com.pragma.plazoletamicroservice.domain.spi;
 
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
-import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface IPedidoPersistencePort {
 
-    void guardarPedido(Pedido pedido, List<PedidoPlato> platosPedidos);
+    Long guardarPedido(Pedido pedido);
     Boolean verificarPedidoCliente(Long idCliente);
     Page<Pedido> obtenerPedidos(Long id, String estado, int elementos, int numeroPagina);
     boolean pedidoExiste(Long id);

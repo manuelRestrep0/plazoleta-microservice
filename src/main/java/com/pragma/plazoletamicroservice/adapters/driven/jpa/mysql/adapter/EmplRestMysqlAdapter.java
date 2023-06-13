@@ -29,6 +29,6 @@ public class EmplRestMysqlAdapter implements IEmplRestPersistencePort
 
     @Override
     public Boolean validarExistenciaEmpleadoRestaurante(Long idEmpleado, Long idRestaurante) {
-        return emplRestRepository.findByIdEmpleadoAndIdRestaurante(idEmpleado,idRestaurante);
+        return emplRestRepository.existsByIdEmpleadoAndIdRestaurante(idEmpleado,idRestaurante);
     }
 }

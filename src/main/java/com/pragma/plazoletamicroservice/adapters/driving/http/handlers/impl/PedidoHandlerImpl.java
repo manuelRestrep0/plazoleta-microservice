@@ -7,6 +7,7 @@ import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IPedidoHa
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPedidoResponseDtoMapper;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPlatoPedidoRequestDtoMapper;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
+import com.pragma.plazoletamicroservice.domain.model.EficienciaPedidos;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,10 @@ public class PedidoHandlerImpl implements IPedidoHandler {
     @Override
     public String cancelarPedido(Long id) {
         return pedidoServicePort.cancelarPedido(id);
+    }
+
+    @Override
+    public EficienciaPedidos obtenerEficiencia(Long idRestaurante) {
+        return pedidoServicePort.obtenerEficianciaRestaurante(idRestaurante);
     }
 }

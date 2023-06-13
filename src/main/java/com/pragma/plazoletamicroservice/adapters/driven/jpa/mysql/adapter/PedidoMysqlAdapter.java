@@ -1,40 +1,29 @@
 package com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter;
 
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.entity.PedidoEntity;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.entity.PedidoPlatoEntity;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPedidoEntityMapper;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPedidoPlatoEntityMapper;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPedidoPlatoRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPedidoRepository;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
-import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import com.pragma.plazoletamicroservice.domain.spi.IPedidoPersistencePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class PedidoMysqlAdapter implements IPedidoPersistencePort {
 
     private final IPedidoRepository pedidoRepository;
     private final IPedidoEntityMapper pedidoEntityMapper;
-    private final IPedidoPlatoRepository pedidoPlatoRepository;
-    private final IPedidoPlatoEntityMapper pedidoPlatoEntityMapper;
 
     @Override
-    public void guardarPedido(Pedido pedido, List<PedidoPlato> platosPedidos) {
+    public Long guardarPedido(Pedido pedido) {
         PedidoEntity pedidoEntity = pedidoEntityMapper.toEntity(pedido);
         pedidoRepository.save(pedidoEntity);
-        List<PedidoPlatoEntity> platosEntity = new ArrayList<>();
-        platosPedidos.forEach(pedidoPlato -> platosEntity.add(pedidoPlatoEntityMapper.toEntity(pedidoPlato)));
-        platosEntity.forEach(pedidoPlatoEntity -> pedidoPlatoEntity.setIdPedido(pedidoRepository.findById(pedidoEntity.getId()).get()));
-        pedidoPlatoRepository.saveAll(platosEntity);
+        return pedidoEntity.getId();
     }
     @Override
     public Boolean verificarPedidoCliente(Long idCliente) {
@@ -125,6 +114,6 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
 
     @Override
     public List<Pedido> obtenerPedidosFromRestaurante(Long idRestaurante) {
-        return pedidoRepository.findAllByIdRestaurante(idRestaurante).stream().map(pedidoEntityMapper::toPedido).toList();
+        return pedidoRepository.findAllByIdRestaurante_Id(idRestaurante).stream().map(pedidoEntityMapper::toPedido).toList();
     }
 }

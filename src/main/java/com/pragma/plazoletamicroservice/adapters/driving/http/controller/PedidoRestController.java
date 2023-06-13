@@ -6,6 +6,7 @@ import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.Pedid
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IPedidoHandler;
 import com.pragma.plazoletamicroservice.adapters.driving.http.utilidades.JwtUtilidades;
 import com.pragma.plazoletamicroservice.configuration.Constants;
+import com.pragma.plazoletamicroservice.domain.model.EficienciaPedidos;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -134,6 +135,10 @@ public class PedidoRestController {
         return ResponseEntity.status(HttpStatus.OK).body((
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,respuesta)
         ));
+    }
+    @GetMapping("/eficiancia")
+    public EficienciaPedidos obtenerEficiencia(@RequestParam("idRestaurante") Long idRestaurante){
+        return pedidoHandler.obtenerEficiencia(idRestaurante);
     }
 
 }

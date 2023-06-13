@@ -13,10 +13,10 @@ import lombok.Setter;
 @Table(name = "Pedidos_Platos")
 @Getter
 @Setter
-public class PedidoPlatoEntity {
+public class PedidoDetallesEntity {
 
     @EmbeddedId
-    private PedidoPlatoEntityPK id;
+    private PedidoDetallesPK id;
     @ManyToOne
     @JoinColumn(name = "id_pedido")
     @MapsId("idPedido")

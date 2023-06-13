@@ -3,6 +3,7 @@ package com.pragma.plazoletamicroservice.adapters.driving.http.handlers;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.AsignarPedidoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PlatoPedidoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.PedidoResponseDto;
+import com.pragma.plazoletamicroservice.domain.model.EficienciaPedidos;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,4 +16,5 @@ public interface IPedidoHandler {
     void marcarPedidoListo(Long id);
     void marcarPedidoEntregado(Long id, Integer codigo);
     String cancelarPedido(Long id);
+    EficienciaPedidos obtenerEficiencia(Long idRestaurante);
 }

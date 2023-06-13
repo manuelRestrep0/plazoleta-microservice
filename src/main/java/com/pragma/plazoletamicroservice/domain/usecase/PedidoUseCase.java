@@ -15,6 +15,7 @@ import com.pragma.plazoletamicroservice.domain.model.EficienciaPedidos;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import com.pragma.plazoletamicroservice.domain.spi.IEmplRestPersistencePort;
+import com.pragma.plazoletamicroservice.domain.spi.IPedidoDetallesPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPedidoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
@@ -38,15 +39,17 @@ public class PedidoUseCase implements IPedidoServicePort {
     private final IPedidoPersistencePort pedidoPersistencePort;
     private final IRestaurantePersistencePort restaurantePersistencePort;
     private final IPlatoPersistencePort platoPersistencePort;
+    private final IPedidoDetallesPersistencePort pedidoDetallesPersistencePort;
     private final IEmplRestPersistencePort emplRestPersistencePort;
     private final IFeignServicePort feignServicePort;
     private final IMensajeriaServicePort mensajeriaServicePort;
     private final ITrazabilidadServicePort trazabilidadServicePort;
 
-    public PedidoUseCase(IPedidoPersistencePort pedidoPersistencePort, IRestaurantePersistencePort restaurantePersistencePort, IPlatoPersistencePort platoPersistencePort, IEmplRestPersistencePort emplRestPersistencePort, IFeignServicePort feignServicePort, IMensajeriaServicePort mensajeriaServicePort, ITrazabilidadServicePort trazabilidadServicePort) {
+    public PedidoUseCase(IPedidoPersistencePort pedidoPersistencePort, IRestaurantePersistencePort restaurantePersistencePort, IPlatoPersistencePort platoPersistencePort, IPedidoDetallesPersistencePort pedidoDetallesPersistencePort, IEmplRestPersistencePort emplRestPersistencePort, IFeignServicePort feignServicePort, IMensajeriaServicePort mensajeriaServicePort, ITrazabilidadServicePort trazabilidadServicePort) {
         this.pedidoPersistencePort = pedidoPersistencePort;
         this.restaurantePersistencePort = restaurantePersistencePort;
         this.platoPersistencePort = platoPersistencePort;
+        this.pedidoDetallesPersistencePort = pedidoDetallesPersistencePort;
         this.emplRestPersistencePort = emplRestPersistencePort;
         this.feignServicePort = feignServicePort;
         this.mensajeriaServicePort = mensajeriaServicePort;
@@ -60,7 +63,7 @@ public class PedidoUseCase implements IPedidoServicePort {
         }
         for (PedidoPlato plato:
              platos) {
-            if(!platoPersistencePort.verificarRestaurantePlato(idRestaurante,plato.getIdPlato().getId())){
+            if(Boolean.FALSE.equals(platoPersistencePort.verificarRestaurantePlato(idRestaurante,plato.getIdPlato().getId()))){
                 throw new PedidoPlatoDiferenteRestauranteException("Este plato no pertenece a este restaurante.");
             }
         }
@@ -69,14 +72,17 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setIdCliente(idCliente);
         pedido.setFecha(LocalDate.now());
         pedido.setEstado(Constantes.PEDIDO_PENDIENTE);
-        platos.forEach(plato ->
-                plato.setIdPlato(
-                        ObtenerObjetoFromOptional.obtenerPlato(
-                                platoPersistencePort.obtenerPlato(
-                                        plato.getIdPlato().getId()))));
-        platos.forEach(plato -> plato.setIdPedido(pedido));
-
-        pedidoPersistencePort.guardarPedido(pedido,platos);
+        Long idPedido = pedidoPersistencePort.guardarPedido(pedido);
+        pedido.setId(idPedido);
+        for (PedidoPlato plato:
+             platos) {
+            plato.setIdPedido(pedido);
+            plato.setIdPlato(
+                    ObtenerObjetoFromOptional.obtenerPlato(
+                            platoPersistencePort.obtenerPlato(
+                                    plato.getIdPlato().getId())));
+            pedidoDetallesPersistencePort.guardarDetallesPedido(plato);
+        }
     }
     @Override
     public Page<Pedido> obtenerPedidosPorEstado(Long idRestaurante, String estado, int elementos, int pagina) {
@@ -174,6 +180,7 @@ public class PedidoUseCase implements IPedidoServicePort {
     @Override
     public EficienciaPedidos obtenerEficianciaRestaurante(Long idRestaurante) {
         List<Pedido> pedidos = pedidoPersistencePort.obtenerPedidosFromRestaurante(idRestaurante);
+        pedidos = pedidos.stream().filter(pedido -> pedido.getEstado().equals(Constantes.PEDIDO_ENTREGADO)).toList();
         List<Long> empleados = emplRestPersistencePort.listaEmpleadosFromRestaurante(idRestaurante);
         Map<Long,List<Long>> eficianciaPorEmpleado = new HashMap<>();
         Map<Long,Long> tiempoPedidos = new HashMap<>();
@@ -229,15 +236,12 @@ public class PedidoUseCase implements IPedidoServicePort {
         ValidacionPermisos.validarRol(rolUsuarioActual,Constantes.ROLE_EMPLEADO);
     }
     private void validarEmpleadoRestaurante(Long idEmpleado, Long idRestaurante){
-        if(!emplRestPersistencePort.validarExistenciaEmpleadoRestaurante(idEmpleado,idRestaurante)){
+        if(Boolean.FALSE.equals(emplRestPersistencePort.validarExistenciaEmpleadoRestaurante(idEmpleado,idRestaurante))){
             throw new EmpleadoDiferenteRestauranteException("Este empleado no pertenece al restaurante.");
         }
     }
     private void validarEmpleadoRestauranteFromPedido(Long idEmpleado, Long idPedido){
         Long idRestaurante = pedidoPersistencePort.obtenerIdRestauranteFromPedido(idPedido);
-        if(idRestaurante.equals(null)){
-            //exception
-        }
         validarEmpleadoRestaurante(idEmpleado,idRestaurante);
     }
 }

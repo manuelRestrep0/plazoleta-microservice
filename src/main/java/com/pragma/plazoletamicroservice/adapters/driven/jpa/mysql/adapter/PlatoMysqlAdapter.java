@@ -42,6 +42,6 @@ public class PlatoMysqlAdapter implements IPlatoPersistencePort {
 
     @Override
     public Boolean verificarRestaurantePlato(Long idRestaurante, Long idPlato) {
-        return platoRepository.existsByIdAndIdRestaurante(idPlato,idRestaurante);
+        return platoRepository.existsByIdAndIdRestaurante_Id(idPlato,idRestaurante);
     }
 }
