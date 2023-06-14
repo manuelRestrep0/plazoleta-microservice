@@ -48,62 +48,6 @@ class PedidoUseCaseTest {
 
     @BeforeEach
     void setPedido(){
-        pedido = new Pedido(
-                1L,
-                null,
-                "Pendiente",
-                null,
-                new Restaurante(1L,
-                        "nombre",
-                        "123",
-                        "local",
-                        "3024261812",
-                        "url",
-                        6L)
-        );
-        platos = new ArrayList<>();
-        PedidoPlato pedidoPlato = new PedidoPlato(
-                new Pedido(),
-                new Plato(),
-                5
-        );
-        platos.add(pedidoPlato);
+
     }
-
-    /*@Test
-    void crearPedido(){
-        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("1");
-        when(pedidoPersistencePort.verificarPedidoCliente(any())).thenReturn(false);
-        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante());
-        when(platoPersistencePort.obtenerPlato(any())).thenReturn(new Plato());
-
-        pedidoUseCase.generarPedido(1L,platos);
-
-        //verify(pedidoPersistencePort).guardarPedido(pedido,platos);
-    }
-    @Test
-    void crearPedidoUsuarioPedidoActivo(){
-        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("1");
-        when(pedidoPersistencePort.verificarPedidoCliente(any())).thenReturn(true);
-        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante());
-        when(platoPersistencePort.obtenerPlato(any())).thenReturn(new Plato());
-
-        assertThrows(ClientePedidoActivoException.class, () -> pedidoUseCase.generarPedido(1L,platos));
-    }
-    @Test
-    void obtenerPedidosPorEstado(){
-        List<Page<Pedido>> pedidos = new ArrayList<>();
-        List<List<Pedido>> respuestaEsperada = new ArrayList<>();
-        when(pedidoPersistencePort.obtenerPedidos(any(),any(),anyInt())).thenReturn(pedidos);
-
-
-        List<List<Pedido>> respuesta = pedidoUseCase.obtenerPedidosPorEstado(1L,"Pendiente",5);
-
-        assertEquals(respuestaEsperada,respuesta);
-    }
-
-     */
-
-
-
 }

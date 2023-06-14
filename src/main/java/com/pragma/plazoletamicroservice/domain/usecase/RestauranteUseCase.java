@@ -2,7 +2,6 @@ package com.pragma.plazoletamicroservice.domain.usecase;
 
 import com.pragma.plazoletamicroservice.domain.exceptions.NitYaRegistradoException;
 import com.pragma.plazoletamicroservice.domain.api.IRestauranteServicePort;
-import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoPropietarioException;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
 import com.pragma.plazoletamicroservice.domain.spi.IEmplRestPersistencePort;
@@ -32,9 +31,9 @@ public class RestauranteUseCase implements IRestauranteServicePort {
         Long idPropietario = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
         restaurante.setIdPropietario(idPropietario);
 
-        if(!feignServicePort.validarPropietario(restaurante.getIdPropietario())){
+        /*if(!feignServicePort.validarPropietario(restaurante.getIdPropietario())){
             throw new UsuarioNoPropietarioException(Constantes.USUARIO_NO_PROPIETARIO);
-        }
+        }*/
         validarExistenciaRestaurante(restaurante.getNit());
 
         this.restaurantePersistencePort.crearRestaurante(restaurante);
@@ -55,7 +54,7 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     public boolean validarPropietarioRestaurante(Long idPropietario, Long idRestaurante) {
         return restaurantePersistencePort.validarExistenciaRestaurante(idPropietario, idRestaurante);
     }
-    private void validarExistenciaRestaurante(String nit){
+    public void validarExistenciaRestaurante(String nit){
         if(Boolean.TRUE.equals(restaurantePersistencePort.validarExistenciaRestaurante(nit))){
             throw new NitYaRegistradoException(Constantes.NIT_YA_REGISTRADO);
         }

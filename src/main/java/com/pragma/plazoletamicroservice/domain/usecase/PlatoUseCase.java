@@ -2,6 +2,7 @@ package com.pragma.plazoletamicroservice.domain.usecase;
 
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
+import com.pragma.plazoletamicroservice.domain.exceptions.PlatoSinModificacionesException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
 import com.pragma.plazoletamicroservice.domain.model.Categoria;
 import com.pragma.plazoletamicroservice.domain.model.Plato;
@@ -51,6 +52,9 @@ public class PlatoUseCase implements IPlatoServicePort {
     public void modificarPlato(Long id,String precio, String descripcion) {
         Plato plato = validarPropietarioPlatoRestaurante(id);
 
+        if(precio==null && descripcion==null){
+            throw new PlatoSinModificacionesException("El plato no tiene modificaciones para hacer.");
+        }
         if(precio != null){
             plato.setPrecio(precio);
         }
