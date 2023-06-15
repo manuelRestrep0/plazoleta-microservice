@@ -2,6 +2,7 @@ package com.pragma.plazoletamicroservice.adapters.driving.http.controller;
 
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.AsignarPedidoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PedidoRequestDto;
+import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.LogPedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.PedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IPedidoHandler;
 import com.pragma.plazoletamicroservice.adapters.driving.http.utilidades.JwtUtilidades;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,7 +39,7 @@ import java.util.Map;
 public class PedidoRestController {
     private final IPedidoHandler pedidoHandler;
     private final HttpServletRequest request;
-    private String AUTH = "Authorization";
+    private final String AUTH = "Authorization";
 
     @Operation(summary = "Agregar un nuevo pedido. Rol: CLIENTE",
             responses = {
@@ -135,6 +137,12 @@ public class PedidoRestController {
         return ResponseEntity.status(HttpStatus.OK).body((
                 Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY,respuesta)
         ));
+    }
+    @GetMapping("/obtener-logs/{idPedido}")
+    public List<LogPedidoResponseDto> obtenerLogs(@PathVariable("idPedido")Long idPedido){
+        String token = request.getHeader(AUTH);
+        JwtUtilidades.extraerToken(token);
+        return pedidoHandler.obtenerLogs(idPedido);
     }
     @GetMapping("/eficiancia")
     public EficienciaPedidos obtenerEficiencia(@RequestParam("idRestaurante") Long idRestaurante){

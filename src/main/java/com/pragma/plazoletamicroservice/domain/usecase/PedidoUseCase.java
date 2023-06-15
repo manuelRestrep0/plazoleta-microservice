@@ -11,7 +11,9 @@ import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
 import com.pragma.plazoletamicroservice.domain.exceptions.ClientePedidoActivoException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PedidoPlatoDiferenteRestauranteException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PedidoRestauranteDiferenteException;
+import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoAutorizadoException;
 import com.pragma.plazoletamicroservice.domain.model.EficienciaPedidos;
+import com.pragma.plazoletamicroservice.domain.model.LogPedido;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import com.pragma.plazoletamicroservice.domain.spi.IEmplRestPersistencePort;
@@ -176,7 +178,6 @@ public class PedidoUseCase implements IPedidoServicePort {
         }
         return "El pedido que intenta cancelar no es suyo";
     }
-
     @Override
     public EficienciaPedidos obtenerEficianciaRestaurante(Long idRestaurante) {
         List<Pedido> pedidos = pedidoPersistencePort.obtenerPedidosFromRestaurante(idRestaurante);
@@ -211,10 +212,14 @@ public class PedidoUseCase implements IPedidoServicePort {
 
         return eficiencia;
     }
-
-    public String obtenerTiempoPedido(Long idPedido) {
-        Long minutos = trazabilidadServicePort.tiempoPedido(idPedido);
-        return String.format("%d minutos", minutos);
+    @Override
+    public List<LogPedido> obtenerLogsPedido(Long idPedido) {
+        validarPedido(idPedido);
+        Long idCliente = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
+        if(!pedidoPersistencePort.validarPedidoUsuario(idPedido,idCliente)){
+            throw new UsuarioNoAutorizadoException("Este pedido no es suyo");
+        }
+        return trazabilidadServicePort.obtenerLogs(idPedido);
     }
     private void validarCodigoVerificacion(Long idPedido, Integer codigo){
         if(!pedidoPersistencePort.pedidoVerificarCodigo(idPedido, codigo)){

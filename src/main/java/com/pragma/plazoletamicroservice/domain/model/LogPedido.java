@@ -1,10 +1,13 @@
 package com.pragma.plazoletamicroservice.domain.model;
 
+import java.time.LocalDateTime;
+
 public class LogPedido {
 
     private Long idPedido;
     private Long idCliente;
     private String correoCliente;
+    private LocalDateTime fecha;
     private String estadoAnterior;
     private String estadoNuevo;
     private Long idEmpleado;
@@ -13,7 +16,7 @@ public class LogPedido {
     public LogPedido() {
     }
 
-    public LogPedido(Long idPedido, Long idCliente, String correoCliente, String estadoAnterior, String estadoNuevo, Long idEmpleado, String correoEmpleado) {
+    public LogPedido(Long idPedido, Long idCliente, String correoCliente, String estadoAnterior, String estadoNuevo, Long idEmpleado, String correoEmpleado, LocalDateTime fecha) {
         this.idPedido = idPedido;
         this.idCliente = idCliente;
         this.correoCliente = correoCliente;
@@ -21,6 +24,7 @@ public class LogPedido {
         this.estadoNuevo = estadoNuevo;
         this.idEmpleado = idEmpleado;
         this.correoEmpleado = correoEmpleado;
+        this.fecha = fecha;
     }
 
     public Long getIdPedido() {
@@ -77,5 +81,13 @@ public class LogPedido {
 
     public void setCorreoEmpleado(String correoEmpleado) {
         this.correoEmpleado = correoEmpleado;
+    }
+
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
     }
 }

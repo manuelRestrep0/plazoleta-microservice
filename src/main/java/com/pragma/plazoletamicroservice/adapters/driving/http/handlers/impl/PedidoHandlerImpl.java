@@ -2,12 +2,15 @@ package com.pragma.plazoletamicroservice.adapters.driving.http.handlers.impl;
 
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.AsignarPedidoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PlatoPedidoRequestDto;
+import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.LogPedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.PedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IPedidoHandler;
+import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.ILogPedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPedidoResponseDtoMapper;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPlatoPedidoRequestDtoMapper;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
 import com.pragma.plazoletamicroservice.domain.model.EficienciaPedidos;
+import com.pragma.plazoletamicroservice.domain.model.LogPedido;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class PedidoHandlerImpl implements IPedidoHandler {
     private final IPedidoServicePort pedidoServicePort;
     private final IPlatoPedidoRequestDtoMapper platoPedidoRequestDtoMapper;
     private final IPedidoResponseDtoMapper pedidoResponseDtoMapper;
+    private final ILogPedidoResponseDto logPedidoResponseDto;
 
     @Override
     public void generarPedido(Long idRestaurante, List<PlatoPedidoRequestDto> platos) {
@@ -52,6 +56,12 @@ public class PedidoHandlerImpl implements IPedidoHandler {
     @Override
     public String cancelarPedido(Long id) {
         return pedidoServicePort.cancelarPedido(id);
+    }
+
+    @Override
+    public List<LogPedidoResponseDto> obtenerLogs(Long idPedido) {
+        List<LogPedido> logs = pedidoServicePort.obtenerLogsPedido(idPedido);
+        return logs.stream().map(logPedidoResponseDto::toResponse).toList();
     }
 
     @Override

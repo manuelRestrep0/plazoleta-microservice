@@ -4,6 +4,8 @@ import com.pragma.plazoletamicroservice.domain.api.ITrazabilidadServicePort;
 import com.pragma.plazoletamicroservice.domain.model.LogPedido;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 public class TrazabilidadFeignHandlerImpl implements ITrazabilidadServicePort {
 
@@ -15,5 +17,10 @@ public class TrazabilidadFeignHandlerImpl implements ITrazabilidadServicePort {
     @Override
     public Long tiempoPedido(Long idPedido) {
         return trazabilidadFeignClient.obtenerTiempoPedido(idPedido);
+    }
+
+    @Override
+    public List<LogPedido> obtenerLogs(Long idPedido) {
+        return trazabilidadFeignClient.obtenerLogsPedido(idPedido);
     }
 }

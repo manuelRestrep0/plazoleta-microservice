@@ -1,6 +1,7 @@
 package com.pragma.plazoletamicroservice.domain.api;
 
 import com.pragma.plazoletamicroservice.domain.model.EficienciaPedidos;
+import com.pragma.plazoletamicroservice.domain.model.LogPedido;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import org.springframework.data.domain.Page;
@@ -16,4 +17,5 @@ public interface IPedidoServicePort {
     void marcarPedidoListo(Long id);
     String cancelarPedido(Long id);
     EficienciaPedidos obtenerEficianciaRestaurante(Long idRestaurante);
+    List<LogPedido> obtenerLogsPedido(Long idPedido);
 }

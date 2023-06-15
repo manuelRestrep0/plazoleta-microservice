@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.List;
+
 @FeignClient(name = "TRAZABILIDAD-MICROSERVICIO-API", url = "http://localhost:8091", configuration = FeignClientConfig.class)
 public interface TrazabilidadFeignClient {
 
@@ -15,5 +17,7 @@ public interface TrazabilidadFeignClient {
 
     @GetMapping("/logs/pedidos/tiempo-pedido/{idPedido}")
     Long obtenerTiempoPedido(@PathVariable("idPedido") Long idPedido);
+    @GetMapping("/logs/pedidos/obtener-logs/{idPedido}")
+    List<LogPedido> obtenerLogsPedido(@PathVariable("idPedido") Long idPedido);
 
 }
