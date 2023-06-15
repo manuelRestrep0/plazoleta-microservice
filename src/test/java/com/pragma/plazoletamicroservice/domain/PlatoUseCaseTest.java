@@ -1,6 +1,7 @@
 package com.pragma.plazoletamicroservice.domain;
 
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
+import com.pragma.plazoletamicroservice.domain.exceptions.PlatoSinModificacionesException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
 import com.pragma.plazoletamicroservice.domain.exceptions.UsuarioNoAutorizadoException;
 import com.pragma.plazoletamicroservice.domain.model.Categoria;
@@ -10,20 +11,23 @@ import com.pragma.plazoletamicroservice.domain.spi.ICategoriaPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
 import com.pragma.plazoletamicroservice.domain.usecase.PlatoUseCase;
+import com.pragma.plazoletamicroservice.domain.utilidades.Constantes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ContextConfiguration;
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,36 +48,24 @@ class PlatoUseCaseTest {
     @Autowired
     PlatoUseCase platoUseCase;
     Plato plato;
+    Restaurante restaurante;
+    Categoria categoria;
 
     @BeforeEach
     void setPlato(){
         plato = new Plato(
                 1L,
                 "Pollo frito",
-                new Categoria(
-                        2L,
-                        "Nombre categoria",
-                        "description"
-                ),
+                new Categoria(),
                 "pollo frito con especias",
                 "20000",
-                new Restaurante(
-                        3L,
-                        "nombre",
-                        "123",
-                        "local",
-                        "3024261812",
-                        "url",
-                        2L
-                ),
+                new Restaurante(),
                 "urlImagen",
                 true
         );
-    }
-    /*@Test
-    void crearPlato(){
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
-        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante(
+        plato.getIdRestaurante().setId(3L);
+        plato.getIdCategoria().setId(2L);
+        restaurante = new Restaurante(
                 3L,
                 "nombre",
                 "123",
@@ -81,125 +73,126 @@ class PlatoUseCaseTest {
                 "3024261812",
                 "url",
                 2L
-        ));
-        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(new Categoria(
+        );
+        categoria = new Categoria(
                 2L,
                 "Nombre categoria",
                 "description"
-        ));
+        );
+
+    }
+    @Test
+    void crearPlatoCasoExitoso(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_PROPIETARIO);
         when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
+        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(Optional.of(restaurante));
+        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(categoria);
 
         platoUseCase.crearPlato(plato);
 
-        verify(platoPersistencePort).guardarPlato(plato);
+        assertEquals(restaurante,plato.getIdRestaurante());
+        assertEquals(categoria,plato.getIdCategoria());
+        assertEquals(true,plato.getActivo());
     }
     @Test
-    void crearPlatoUsuarioNoAutorizado(){
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_CLIENTE");
-        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante(
-                3L,
-                "nombre",
-                "123",
-                "local",
-                "3024261812",
-                "url",
-                2L
-        ));
-        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(new Categoria(
-                2L,
-                "Nombre categoria",
-                "description"
-        ));
+    void crearPlatoRolNoAutorizado(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_EMPLEADO);
         when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
+        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(Optional.of(restaurante));
+        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(categoria);
 
-        assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.crearPlato(plato));
+        assertThrows(UsuarioNoAutorizadoException.class, ()-> platoUseCase.crearPlato(plato));
     }
     @Test
-    void crearPlatoPropietarioNoCoincide(){
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
-        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(new Restaurante(
-                3L,
-                "nombre",
-                "123",
-                "local",
-                "3024261812",
-                "url",
-                6L
-        ));
-        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(new Categoria(
-                2L,
-                "Nombre categoria",
-                "description"
-        ));
-        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
-
-        assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.crearPlato(plato));
-    }
-    @Test
-    void modificarPlato(){
-        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
-
-        platoUseCase.modificarPlato(1L,"1000","plato modificado");
-
-        verify(platoPersistencePort).guardarPlato(plato);
-    }
-    @Test
-    void modificarPlatoUsuarioNoAutorizado(){
-        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_CLIENTE");
-
-        assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.modificarPlato(1L,"1000","plato modificado"));
-    }
-    @Test
-    void modificarPlatoPropietarioNoCoincide(){
-        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+    void crearPlatoDiferentePropietario(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_PROPIETARIO);
         when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("3");
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+        when(restaurantePersistencePort.obtenerRestaurante(any())).thenReturn(Optional.of(restaurante));
+        when(categoriaPersistencePort.obtenerCategoria(any())).thenReturn(categoria);
 
-        assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.modificarPlato(1L,"1000","plato modificado"));
+        assertThrows(PropietarioOtroRestauranteException.class,()->platoUseCase.crearPlato(plato));
     }
     @Test
-    void habilitacionPlato(){
-        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+    void modificarPlatoAmbosCampos(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_PROPIETARIO);
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(Optional.of(plato));
         when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+        plato.setIdRestaurante(restaurante);
 
-        platoUseCase.habilitacionPlato(1L,false);
+        platoUseCase.modificarPlato(2L,"500","prueba");
 
-        verify(platoPersistencePort).guardarPlato(plato);
+        assertEquals("500",plato.getPrecio());
+        assertEquals("prueba",plato.getDescripcion());
     }
     @Test
-    void habilitacionPlatoNoAutorizado(){
-        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
+    void modificarPlatoPrecio(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_PROPIETARIO);
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(Optional.of(plato));
         when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_CLIENTE");
+        plato.setIdRestaurante(restaurante);
 
-        assertThrows(UsuarioNoAutorizadoException.class, () -> platoUseCase.habilitacionPlato(1L,false));
+        platoUseCase.modificarPlato(2L,"500",null);
+
+        assertEquals("500",plato.getPrecio());
     }
     @Test
-    void habilitacionPlatoOtroPropietario(){
-        when(platoPersistencePort.obtenerPlato(any())).thenReturn(plato);
-        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("3");
-        when(feignServicePort.obtenerRolFromToken(any())).thenReturn("ROLE_PROPIETARIO");
+    void modificarPlatoDescription(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_PROPIETARIO);
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(Optional.of(plato));
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
+        plato.setIdRestaurante(restaurante);
 
-        assertThrows(PropietarioOtroRestauranteException.class, () -> platoUseCase.habilitacionPlato(1L,false));
+        platoUseCase.modificarPlato(2L,null,"prueba");
+
+        assertEquals("prueba",plato.getDescripcion());
     }
-
     @Test
-    void obtenerPlatos(){
-        List<Page<Plato>> platos = new ArrayList<>();
-        when(platoPersistencePort.obtenerPlatos("nombre categoria",1L,5)).thenReturn(platos);
+    void modificarPlatoRolNoAutorizado(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_EMPLEADO);
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(Optional.of(plato));
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
+        plato.setIdRestaurante(restaurante);
 
-        List<List<Plato>> respuesta = platoUseCase.obtenerPlatos("nombre categoria",1L,5);
-        List<List<Plato>> respuestaEsperada = new ArrayList<>();
-
-        assertEquals(respuestaEsperada,respuesta);
-        verify(platoPersistencePort).obtenerPlatos("nombre categoria",1L,5);
+        assertThrows(UsuarioNoAutorizadoException.class,()->platoUseCase.modificarPlato(2L,"500","prueba"));
     }
+    @Test
+    void modificarPlatoCamposVacios(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_PROPIETARIO);
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(Optional.of(plato));
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
+        plato.setIdRestaurante(restaurante);
 
-     */
+        assertThrows(PlatoSinModificacionesException.class,()->platoUseCase.modificarPlato(2L,null,null));
+    }
+    @Test
+    void habilitarPlatoEstadoActivo(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_PROPIETARIO);
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(Optional.of(plato));
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
+        plato.setIdRestaurante(restaurante);
 
+        platoUseCase.habilitacionPlato(2L,true);
+
+        assertTrue(plato.getActivo());
+    }
+    @Test
+    void deshabilitarPlatoEstadoActivo(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_PROPIETARIO);
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(Optional.of(plato));
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
+        plato.setIdRestaurante(restaurante);
+
+        platoUseCase.habilitacionPlato(2L,false);
+
+        assertFalse(plato.getActivo());
+    }
+    @Test
+    void habilitarPlatoRolNoAutorizado(){
+        when(feignServicePort.obtenerRolFromToken(any())).thenReturn(Constantes.ROLE_EMPLEADO);
+        when(platoPersistencePort.obtenerPlato(any())).thenReturn(Optional.of(plato));
+        when(feignServicePort.obtenerIdUsuarioFromToken(any())).thenReturn("2");
+        plato.setIdRestaurante(restaurante);
+
+        assertThrows(UsuarioNoAutorizadoException.class,()->platoUseCase.habilitacionPlato(2L,true));
+    }
 }

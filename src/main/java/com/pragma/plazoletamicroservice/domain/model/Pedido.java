@@ -3,6 +3,7 @@ package com.pragma.plazoletamicroservice.domain.model;
 import java.time.LocalDate;
 
 public class Pedido {
+    private Long id;
     private Long idCliente;
     private LocalDate fecha;
     private String estado;
@@ -12,12 +13,21 @@ public class Pedido {
     public Pedido() {
     }
 
-    public Pedido(Long idCliente, LocalDate fecha, String estado, Long idChef, Restaurante idRestaurante) {
+    public Pedido(Long idCliente, LocalDate fecha, String estado, Long idChef, Restaurante idRestaurante, Long id) {
         this.idCliente = idCliente;
         this.fecha = fecha;
         this.estado = estado;
         this.idChef = idChef;
         this.idRestaurante = idRestaurante;
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Restaurante getIdRestaurante() {

@@ -2,14 +2,19 @@ package com.pragma.plazoletamicroservice.adapters.driving.http.handlers.impl;
 
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.AsignarPedidoRequestDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.request.PlatoPedidoRequestDto;
+import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.LogPedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.dto.response.PedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.handlers.IPedidoHandler;
+import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.ILogPedidoResponseDto;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPedidoResponseDtoMapper;
 import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPlatoPedidoRequestDtoMapper;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
+import com.pragma.plazoletamicroservice.domain.model.EficienciaPedidos;
+import com.pragma.plazoletamicroservice.domain.model.LogPedido;
 import com.pragma.plazoletamicroservice.domain.model.Pedido;
 import com.pragma.plazoletamicroservice.domain.model.PedidoPlato;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +27,7 @@ public class PedidoHandlerImpl implements IPedidoHandler {
     private final IPedidoServicePort pedidoServicePort;
     private final IPlatoPedidoRequestDtoMapper platoPedidoRequestDtoMapper;
     private final IPedidoResponseDtoMapper pedidoResponseDtoMapper;
+    private final ILogPedidoResponseDto logPedidoResponseDto;
 
     @Override
     public void generarPedido(Long idRestaurante, List<PlatoPedidoRequestDto> platos) {
@@ -30,22 +36,36 @@ public class PedidoHandlerImpl implements IPedidoHandler {
         platos.forEach(plato -> platosMapeados.add(platoPedidoRequestDtoMapper.toPlatoPedido(plato)));
         pedidoServicePort.generarPedido(idRestaurante,platosMapeados);
     }
-
     @Override
-    public List<List<PedidoResponseDto>> obtenerPedidosPorEstado(Long id, String estado, int elementos) {
-        List<List<PedidoResponseDto>> pedidos = new ArrayList<>();
-        List<List<Pedido>> pedidosPaginados = pedidoServicePort.obtenerPedidosPorEstado(id, estado, elementos);
-        pedidosPaginados.forEach(page -> pedidos.add(page.stream().map(pedidoResponseDtoMapper::toResponse).toList()));
-        return pedidos;
+    public Page<PedidoResponseDto> obtenerPedidosPorEstado(Long id, String estado, int elementos, int pagina) {
+        Page<Pedido> pedidosPaginados = pedidoServicePort.obtenerPedidosPorEstado(id, estado, elementos, pagina);
+        return pedidosPaginados.map(pedidoResponseDtoMapper::toResponse);
     }
-
     @Override
     public void asignarPedidoEmpleado(AsignarPedidoRequestDto asignarPedidoRequestDto) {
         pedidoServicePort.asignarPedido(asignarPedidoRequestDto.getIdRestaurante(), asignarPedidoRequestDto.getPedidos());
     }
+    @Override
+    public void marcarPedidoListo(Long id) {
+        pedidoServicePort.marcarPedidoListo(id);
+    }
+    @Override
+    public void marcarPedidoEntregado(Long id, Integer codigo) {
+        pedidoServicePort.marcarPedidoEntregado(id, codigo);
+    }
+    @Override
+    public String cancelarPedido(Long id) {
+        return pedidoServicePort.cancelarPedido(id);
+    }
 
     @Override
-    public Integer marcarPedidoListo(Long id) {
-        return pedidoServicePort.marcarPedidoListo(id);
+    public List<LogPedidoResponseDto> obtenerLogs(Long idPedido) {
+        List<LogPedido> logs = pedidoServicePort.obtenerLogsPedido(idPedido);
+        return logs.stream().map(logPedidoResponseDto::toResponse).toList();
+    }
+
+    @Override
+    public EficienciaPedidos obtenerEficiencia(Long idRestaurante) {
+        return pedidoServicePort.obtenerEficianciaRestaurante(idRestaurante);
     }
 }

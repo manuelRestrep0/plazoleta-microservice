@@ -23,4 +23,9 @@ public class UsuarioFeignHandlerImp implements IFeignServicePort {
     public String obtenerRolFromToken(String token) {
         return usuarioFeignClient.rolUsuario(token);
     }
+
+    @Override
+    public String obtenerCorreoFromUsuario(Long idUsuario) {
+        return usuarioFeignClient.obtenerCorreoFromUsuario(idUsuario);
+    }
 }

@@ -11,5 +11,4 @@ public class ValidacionPermisos {
             throw new UsuarioNoAutorizadoException(Constantes.USUARIO_NO_AUTORIZADO);
         }
     }
-
 }

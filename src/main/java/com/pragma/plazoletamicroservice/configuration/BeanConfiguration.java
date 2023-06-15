@@ -1,16 +1,19 @@
 package com.pragma.plazoletamicroservice.configuration;
 
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.CategoriaMysqlAdapter;
+import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.EmplRestMysqlAdapter;
+import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.PedidoDetallesMysqlAdapter;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.PedidoMysqlAdapter;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.PlatoMysqlAdapter;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.adapter.RestauranteMysqlAdapter;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.ICategoriaEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPedidoEntityMapper;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPedidoPlatoEntityMapper;
+import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPedidoDetallesEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IPlatoEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.mapper.IRestauranteEntityMapper;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.ICategoriaRepository;
-import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPedidoPlatoRepository;
+import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IEmplRestRepository;
+import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPedidoDetallesRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPedidoRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IPlatoRepository;
 import com.pragma.plazoletamicroservice.adapters.driven.jpa.mysql.repository.IRestauranteRepository;
@@ -18,17 +21,20 @@ import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFei
 import com.pragma.plazoletamicroservice.adapters.driving.feign.client.UsuarioFeignHandlerImp;
 import com.pragma.plazoletamicroservice.adapters.driving.feign.mensajeria.MensajeriaFeignClient;
 import com.pragma.plazoletamicroservice.adapters.driving.feign.mensajeria.MensajeriaFiegnHandlerImpl;
-import com.pragma.plazoletamicroservice.domain.api.IAuthServicePort;
+import com.pragma.plazoletamicroservice.adapters.driving.feign.trazabilidad.TrazabilidadFeignClient;
+import com.pragma.plazoletamicroservice.adapters.driving.feign.trazabilidad.TrazabilidadFeignHandlerImpl;
 import com.pragma.plazoletamicroservice.domain.api.IMensajeriaServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPedidoServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IRestauranteServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
+import com.pragma.plazoletamicroservice.domain.api.ITrazabilidadServicePort;
 import com.pragma.plazoletamicroservice.domain.spi.ICategoriaPersistencePort;
+import com.pragma.plazoletamicroservice.domain.spi.IEmplRestPersistencePort;
+import com.pragma.plazoletamicroservice.domain.spi.IPedidoDetallesPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPedidoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
-import com.pragma.plazoletamicroservice.domain.usecase.AuthUseCase;
 import com.pragma.plazoletamicroservice.domain.usecase.PedidoUseCase;
 import com.pragma.plazoletamicroservice.domain.usecase.PlatoUseCase;
 import com.pragma.plazoletamicroservice.domain.usecase.RestauranteUseCase;
@@ -49,17 +55,15 @@ public class BeanConfiguration {
     private final ICategoriaEntityMapper categoriaEntityMapper;
     private final IPedidoRepository pedidoRepository;
     private final IPedidoEntityMapper pedidoEntityMapper;
-    private final IPedidoPlatoRepository pedidoPlatoRepository;
-    private final IPedidoPlatoEntityMapper pedidoPlatoEntityMapper;
+    private final IPedidoDetallesRepository pedidoPlatoRepository;
+    private final IPedidoDetallesEntityMapper pedidoPlatoEntityMapper;
+    private final IEmplRestRepository emplRestRepository;
     private final MensajeriaFeignClient mensajeriaFeignClient;
+    private final TrazabilidadFeignClient trazabilidadFeignClient;
 
     @Bean
     public IRestauranteServicePort restauranteServicePort(){
-        return new RestauranteUseCase(restaurantePersistencePort(), feignServicePort());
-    }
-    @Bean
-    public IAuthServicePort authServicePort(){
-        return new AuthUseCase();
+        return new RestauranteUseCase(restaurantePersistencePort(),emplRestPersistencePort(), feignServicePort());
     }
     @Bean
     public IFeignServicePort feignServicePort(){
@@ -68,6 +72,10 @@ public class BeanConfiguration {
     @Bean
     public IRestaurantePersistencePort restaurantePersistencePort(){
         return new RestauranteMysqlAdapter(restauranteRepository,restauranteEntityMapper);
+    }
+    @Bean
+    public IEmplRestPersistencePort emplRestPersistencePort(){
+        return new EmplRestMysqlAdapter(emplRestRepository);
     }
     @Bean
     public IPlatoServicePort platoServicePort(){
@@ -83,14 +91,22 @@ public class BeanConfiguration {
     }
     @Bean
     public IPedidoServicePort pedidoServicePort(){
-        return new PedidoUseCase(pedidoPersistencePort(),restaurantePersistencePort(), platoPersistencePort(), feignServicePort(), mensajeriaServicePort());
+        return new PedidoUseCase(pedidoPersistencePort(),restaurantePersistencePort(), platoPersistencePort(), pedidoDetallesPersistencePort(), emplRestPersistencePort(), feignServicePort(), mensajeriaServicePort(), trazabilidadServicePort());
     }
     @Bean
     public IPedidoPersistencePort pedidoPersistencePort(){
-        return new PedidoMysqlAdapter(pedidoRepository,pedidoEntityMapper,pedidoPlatoRepository,pedidoPlatoEntityMapper);
+        return new PedidoMysqlAdapter(pedidoRepository,pedidoEntityMapper);
+    }
+    @Bean
+    IPedidoDetallesPersistencePort pedidoDetallesPersistencePort(){
+        return new PedidoDetallesMysqlAdapter(pedidoPlatoRepository,pedidoPlatoEntityMapper);
     }
     @Bean
     public IMensajeriaServicePort mensajeriaServicePort(){
         return new MensajeriaFiegnHandlerImpl(mensajeriaFeignClient);
+    }
+    @Bean
+    public ITrazabilidadServicePort trazabilidadServicePort(){
+        return new TrazabilidadFeignHandlerImpl(trazabilidadFeignClient);
     }
 }

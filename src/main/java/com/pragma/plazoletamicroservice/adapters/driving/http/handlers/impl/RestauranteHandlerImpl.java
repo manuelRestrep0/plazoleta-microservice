@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +25,16 @@ public class RestauranteHandlerImpl implements IRestauranteHandler {
     }
 
     @Override
-    public List<List<RestauranteResponseDto>> obtenerRestaurantes(int elementos) {
-        List<Page<Restaurante>> restaurantes = restauranteServicePort.obtenerRestaurantes(elementos);
-        List<List<RestauranteResponseDto>> respuesta = new ArrayList<>();
-        restaurantes.forEach(restaurantePage -> respuesta.add(restaurantePage.map(restauranteResponseMapper::toResponse).getContent()));
-        return respuesta;
+    public Page<RestauranteResponseDto> obtenerRestaurantes(int elementos, int pagina) {
+        Page<Restaurante> restaurantes = restauranteServicePort.obtenerRestaurantes(elementos, pagina);
+        return restaurantes.map(restauranteResponseMapper::toResponse);
+    }
+    @Override
+    public boolean registrarEmpleado(Long idEmpleado, Long idPropietario, Long idRestaurante) {
+        return restauranteServicePort.registrarEmpleado(idEmpleado,idPropietario,idRestaurante);
+    }
+    @Override
+    public boolean validarPropietarioRestaurante(Long idPropieratio, Long idRestaurante) {
+        return restauranteServicePort.validarPropietarioRestaurante(idPropieratio, idRestaurante);
     }
 }

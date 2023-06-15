@@ -11,8 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -33,23 +31,17 @@ public class RestauranteMysqlAdapter implements IRestaurantePersistencePort {
         return restauranteEntity.map(restauranteEntityMapper::toRestaurante);
     }
     @Override
-    public List<Page<Restaurante>> obtenerRestaurantes(int elementos) {
-        List<Page<Restaurante>> paginas = new ArrayList<>();
-        int numeroPagina = 0;
-        Page<Restaurante> pagina;
-        do{
-            Pageable pageable = PageRequest.of(numeroPagina, elementos, Sort.by("nombre"));
-            pagina = restauranteRepository.findAll(pageable).map(restauranteEntityMapper::toRestaurante);
-            paginas.add(pagina);
-            numeroPagina++;
-        } while( pagina.hasNext());
-
-        return paginas;
+    public Page<Restaurante> obtenerRestaurantes(int elementos, int numeroPagina) {
+        Pageable pageable = PageRequest.of(numeroPagina, elementos, Sort.by("nombre"));
+        return restauranteRepository.findAll(pageable).map(restauranteEntityMapper::toRestaurante);
     }
-
     @Override
     public Boolean validarExistenciaRestaurante(String nit) {
         return restauranteRepository.existsByNit(nit);
+    }
+    @Override
+    public Boolean validarExistenciaRestaurante(Long idPropietario, Long idRestaurante) {
+        return restauranteRepository.existsByIdAndIdPropietario(idRestaurante,idPropietario);
     }
 
 }

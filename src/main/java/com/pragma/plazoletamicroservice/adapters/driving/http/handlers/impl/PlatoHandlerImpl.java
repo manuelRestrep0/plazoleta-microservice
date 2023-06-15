@@ -10,10 +10,8 @@ import com.pragma.plazoletamicroservice.adapters.driving.http.mapper.IPlatoRespo
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
 import com.pragma.plazoletamicroservice.domain.model.Plato;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,12 +34,9 @@ public class PlatoHandlerImpl implements IPlatoHandler {
     public void habilitacionPlato(PlatoHabilitacionRequestDto platoHabilitacionRequestDto) {
         platoServicePort.habilitacionPlato(platoHabilitacionRequestDto.getId(), platoHabilitacionRequestDto.getDisponibilidad());
     }
-
     @Override
-    public List<List<PlatoResponseDto>> obtenerPlatos(String nombre, Long id, int elementos) {
-        List<List<Plato>> platos = platoServicePort.obtenerPlatos(nombre, id, elementos);
-        List<List<PlatoResponseDto>> respuesta = new ArrayList<>();
-        platos.forEach(page -> respuesta.add(platoResponseDtoMapper.toListResponse(page)));
-        return respuesta;
+    public Page<PlatoResponseDto> obtenerPlatos(String nombre, Long id, int elementos, int numeroPagina) {
+        Page<Plato> platos = platoServicePort.obtenerPlatos(nombre, id, elementos, numeroPagina);
+        return platos.map(platoResponseDtoMapper::toResponse);
     }
 }

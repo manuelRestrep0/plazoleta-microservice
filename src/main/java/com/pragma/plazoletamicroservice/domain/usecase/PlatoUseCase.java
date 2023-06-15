@@ -2,9 +2,8 @@ package com.pragma.plazoletamicroservice.domain.usecase;
 
 import com.pragma.plazoletamicroservice.domain.api.IFeignServicePort;
 import com.pragma.plazoletamicroservice.domain.api.IPlatoServicePort;
-import com.pragma.plazoletamicroservice.domain.exceptions.PlatoNoEncontradoException;
+import com.pragma.plazoletamicroservice.domain.exceptions.PlatoSinModificacionesException;
 import com.pragma.plazoletamicroservice.domain.exceptions.PropietarioOtroRestauranteException;
-import com.pragma.plazoletamicroservice.domain.exceptions.RestauranteNoEncontradoException;
 import com.pragma.plazoletamicroservice.domain.model.Categoria;
 import com.pragma.plazoletamicroservice.domain.model.Plato;
 import com.pragma.plazoletamicroservice.domain.model.Restaurante;
@@ -12,13 +11,11 @@ import com.pragma.plazoletamicroservice.domain.spi.ICategoriaPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoletamicroservice.domain.spi.IRestaurantePersistencePort;
 import com.pragma.plazoletamicroservice.domain.utilidades.Constantes;
+import com.pragma.plazoletamicroservice.domain.utilidades.ObtenerObjetoFromOptional;
 import com.pragma.plazoletamicroservice.domain.utilidades.Token;
 import com.pragma.plazoletamicroservice.domain.utilidades.ValidacionPermisos;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class PlatoUseCase implements IPlatoServicePort {
     private final IPlatoPersistencePort platoPersistencePort;
@@ -39,7 +36,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         plato.setActivo(true);
 
         Long idPropietario = Long.parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
-        Restaurante restaurante = obtenerRestaurante(restaurantePersistencePort.obtenerRestaurante(plato.getIdRestaurante().getId()));
+        Restaurante restaurante = ObtenerObjetoFromOptional.obtenerRestaurante(restaurantePersistencePort.obtenerRestaurante(plato.getIdRestaurante().getId()));
         if(idPropietario.equals(restaurante.getIdPropietario())){
             plato.setIdRestaurante(restaurante);
         } else{
@@ -55,6 +52,9 @@ public class PlatoUseCase implements IPlatoServicePort {
     public void modificarPlato(Long id,String precio, String descripcion) {
         Plato plato = validarPropietarioPlatoRestaurante(id);
 
+        if(precio==null && descripcion==null){
+            throw new PlatoSinModificacionesException("El plato no tiene modificaciones para hacer.");
+        }
         if(precio != null){
             plato.setPrecio(precio);
         }
@@ -75,34 +75,19 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
 
     @Override
-    public List<List<Plato>> obtenerPlatos(String nombre, Long id, int elementos) {
-        List<Page<Plato>> platos = platoPersistencePort.obtenerPlatos(nombre, id, elementos);
-        List<List<Plato>> respuesta = new ArrayList<>();
-        platos.forEach(page -> respuesta.add(page.getContent()));
-        return respuesta;
+    public Page<Plato> obtenerPlatos(String nombre, Long id, int elementos, int numeroPagina) {
+        return  platoPersistencePort.obtenerPlatos(nombre, id, elementos, numeroPagina);
     }
 
     Plato validarPropietarioPlatoRestaurante(Long id){
         ValidacionPermisos.validarRol(feignServicePort.obtenerRolFromToken(Token.getToken()),Constantes.ROLE_PROPIETARIO);
 
-        Plato plato = obtenerPlato(platoPersistencePort.obtenerPlato(id));
+        Plato plato = ObtenerObjetoFromOptional.obtenerPlato(platoPersistencePort.obtenerPlato(id));
 
         Long idPropietario = Long.parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));
         if(!idPropietario.equals(plato.getIdRestaurante().getIdPropietario())) {
             throw new PropietarioOtroRestauranteException(Constantes.PROPIETARIO_DIFERENTE);
         }
         return plato;
-    }
-    private Restaurante obtenerRestaurante(Optional<Restaurante> restaurante){
-        if (restaurante.isEmpty()){
-            throw new RestauranteNoEncontradoException(Constantes.RESTAURANTE_NO_ENCONTRADO);
-        }
-        return restaurante.get();
-    }
-    private Plato obtenerPlato(Optional<Plato> plato){
-        if(plato.isEmpty()){
-            throw new PlatoNoEncontradoException(Constantes.PLATO_NO_REGISTRADO);
-        }
-        return plato.get();
     }
 }
