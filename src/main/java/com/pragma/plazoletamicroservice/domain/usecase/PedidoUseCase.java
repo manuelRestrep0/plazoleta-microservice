@@ -186,19 +186,24 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedidos = pedidos.stream().filter(pedido -> pedido.getEstado().equals(Constantes.PEDIDO_ENTREGADO)).toList();
         List<Long> empleados = emplRestPersistencePort.listaEmpleadosFromRestaurante(idRestaurante);
         Map<Long,List<Long>> eficianciaPorEmpleado = new HashMap<>();
+        Map<Long,Integer> pedidosPorEmpleado = new HashMap<>();
         Map<Long,Long> tiempoPedidos = new HashMap<>();
         for (Long empleado:
              empleados) {
             eficianciaPorEmpleado.put(empleado,null);
+            pedidosPorEmpleado.put(empleado,0);
         }
         for (Pedido pedido:
              pedidos) {
             Long tiempo = trazabilidadServicePort.tiempoPedido(pedido.getId());
             tiempoPedidos.put(pedido.getId(), tiempo);
             List<Long> pedidosEmpleado = eficianciaPorEmpleado.get(pedido.getIdChef());
+            pedidosPorEmpleado.put(pedido.getIdChef(),pedidosPorEmpleado.get(pedido.getIdChef())+1);
             if(pedidosEmpleado == null){
                 pedidosEmpleado = new ArrayList<>();
+                pedidosEmpleado.add(tiempo);
             }
+            tiempo = tiempo/pedidosPorEmpleado.get(pedido.getIdChef());
             pedidosEmpleado.add(tiempo);
             eficianciaPorEmpleado.put(pedido.getIdChef(),pedidosEmpleado);
         }
