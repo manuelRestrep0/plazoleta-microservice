@@ -6,12 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IPedidoRepository extends JpaRepository<PedidoEntity,Long> {
-
-    Optional<PedidoEntity> findByIdCliente(Long idCliente);
     Boolean existsByIdCliente(Long idCliente);
+    Boolean existsByIdClienteAndEstado(Long idCliente, String estado);
     boolean existsByIdAndEstado(Long id, String estado);
     boolean existsByIdAndCodigoVerificacion(Long id, Integer codigo);
     boolean existsByIdAndIdCliente(Long id, Long idCliente);

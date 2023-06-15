@@ -101,11 +101,12 @@ public class PedidoUseCase implements IPedidoServicePort {
         validarEmpleadoRestaurante(idEmpleado,idRestaurante);
         for (Long idPedido:
              pedidos) {
+            validarPedido(idPedido);
             if(!pedidoPersistencePort.validadRestaurantePedido(idRestaurante,idPedido)){
                    throw new PedidoRestauranteDiferenteException("El pedido "+idPedido+" "+Constantes.PEDIDOS_DIFERENTES_RESTAURANTES);
             }
             validarEstadoPedido(idPedido,Constantes.PEDIDO_PENDIENTE);
-            validarPedido(idPedido);
+
             pedidoPersistencePort.actualizarPedido(idPedido,Constantes.PEDIDO_EN_PREPARACION,idEmpleado);
 
             BuilderLogPedido logPedido = new BuilderLogPedido();
@@ -121,6 +122,7 @@ public class PedidoUseCase implements IPedidoServicePort {
     @Override
     public void marcarPedidoEntregado(Long id, Integer codigo) {
         validarRolEmpleado();
+        validarPedido(id);
         validarEstadoPedido(id,Constantes.PEDIDO_LISTO);
 
         Long idEmpleado = parseLong(feignServicePort.obtenerIdUsuarioFromToken(Token.getToken()));

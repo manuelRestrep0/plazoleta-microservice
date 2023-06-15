@@ -27,6 +27,7 @@ public class PedidoMysqlAdapter implements IPedidoPersistencePort {
     }
     @Override
     public Boolean verificarPedidoCliente(Long idCliente) {
+
         return pedidoRepository.existsByIdCliente(idCliente);
     }
     @Override
